@@ -2,6 +2,9 @@
 
 #include <SessionClass.h>
 #include <VeinholeMonsterClass.h>
+#include <Utilities/GeneralUtils.h>
+#include <windows.h>
+#include <Misc/MapLocalStrings.h>
 
 std::unique_ptr<ScenarioExt::ExtData> ScenarioExt::Data = nullptr;
 
@@ -114,6 +117,55 @@ void ScenarioExt::ExtData::UpdateTransportReloaders()
 	}
 }
 
+// Parse [Phobos.MapCSF] section entries: key = CSF label, value = text (supports \n, \r, \t escapes)
+void ScenarioExt::ExtData::ReadMapLocalCSF(CCINIClass* pINI)
+{
+	this->MapLocalCSF.clear();
+
+	const char* section = "Phobos.MapCSF";
+	const int count = pINI->GetKeyCount(section);
+	for (int i = 0; i < count; ++i) {
+		const char* key = pINI->GetKeyName(section, i);
+		if (!key || !*key) { continue; }
+
+		// Read raw value into Phobos::readBuffer
+		pINI->ReadString(section, key, "", Phobos::readBuffer);
+
+		// Unescape common sequences in-place to a std::string
+		std::string raw = Phobos::readBuffer;
+		std::string out;
+		out.reserve(raw.size());
+		for (size_t j = 0; j < raw.size(); ++j) {
+			char c = raw[j];
+			if (c == '\\' && j + 1 < raw.size()) {
+				char n = raw[j + 1];
+				switch (n) {
+				case 'n': out.push_back('\n'); ++j; continue;
+				case 'r': out.push_back('\r'); ++j; continue;
+				case 't': out.push_back('\t'); ++j; continue;
+				case '\\': out.push_back('\\'); ++j; continue;
+				default: break;
+				}
+			}
+			out.push_back(c);
+		}
+
+		// Convert to wide using system ACP (consistent with vanilla string handling)
+		if (!out.empty()) {
+			int needed = MultiByteToWideChar(CP_ACP, 0, out.c_str(), static_cast<int>(out.size()), nullptr, 0);
+			if (needed > 0) {
+				std::wstring w;
+				w.resize(needed);
+				MultiByteToWideChar(CP_ACP, 0, out.c_str(), static_cast<int>(out.size()), w.data(), needed);
+				this->MapLocalCSF.emplace(key, std::move(w));
+			}
+		}
+	}
+
+	// Apply into the live StringTable so all StringTable::LoadString calls can resolve these
+	MapLocalStrings::Apply(this->MapLocalCSF);
+}
+
 // =============================
 // load / save
 
@@ -148,6 +200,9 @@ void ScenarioExt::ExtData::LoadFromINIFile(CCINIClass* const pINI)
 		this->ShowBriefing = pINI->ReadBool(GameStrings::Basic, "ShowBriefing", this->ShowBriefing);
 		this->BriefingTheme = pINI->ReadTheme(GameStrings::Basic, "BriefingTheme", this->BriefingTheme);
 	}
+
+    // Parse and inject map-local CSF entries after scenario INI
+    this->ReadMapLocalCSF(pINI);
 }
 
 template <typename T>

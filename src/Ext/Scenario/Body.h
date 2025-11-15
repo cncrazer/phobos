@@ -48,6 +48,9 @@ public:
 
 		std::vector<TechnoExt::ExtData*> LimboLaunchers;
 
+		// Map-local CSF entries parsed from the current scenario
+		std::map<std::string, std::wstring> MapLocalCSF;
+
 		DynamicVectorClass<TechnoClass*> UndergroundTracker; // Technos that are underground.
 		DynamicVectorClass<TechnoClass*> SpecialTracker; // For special purposes, like tracking technos that are forced moving. Currently unused.
 		DynamicVectorClass<TechnoClass*> FallingDownTracker; // Technos that are falling down, parachutes and land technos falling from bridge.
@@ -87,6 +90,7 @@ public:
 
 		void UpdateAutoDeathObjectsInLimbo();
 		void UpdateTransportReloaders();
+		void ReadMapLocalCSF(CCINIClass* pINI);
 	private:
 		template <typename T>
 		void Serialize(T& Stm);

@@ -32,6 +32,8 @@
 #include <Ext/WarheadType/Body.h>
 #include <Ext/WeaponType/Body.h>
 
+#include <Misc/MapLocalStrings.h>
+
 #include <New/Type/BannerTypeClass.h>
 #include <New/Type/DigitalDisplayTypeClass.h>
 #include <New/Type/LaserTrailTypeClass.h>
@@ -259,6 +261,8 @@ DEFINE_HOOK(0x7258D0, AnnounceInvalidPointer, 0x6)
 DEFINE_HOOK(0x685659, Scenario_ClearClasses, 0xa)
 {
 	PhobosTypeRegistry::Clear();
+	// also clear any injected map-local CSF entries
+	MapLocalStrings::Clear();
 	return 0;
 }
 
