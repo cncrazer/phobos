@@ -14,6 +14,7 @@ class AnimTypeClass;
 class MouseCursor;
 class SuperWeaponTypeClass;
 class TechnoTypeClass;
+class BuildingTypeClass;
 class VocClass;
 class WarheadTypeClass;
 class DigitalDisplayTypeClass;
@@ -110,6 +111,11 @@ public:
 		Valueable<bool> BuildingProductionQueue;
 
 		Valueable<bool> AllowParallelAIQueues;
+		Valueable<bool> AllowParallelAIQueues_BuildingTabs;
+		// Optional: treat a specific BuildingType as an AI-only auxiliary building factory
+		// to enable Production+Defensive parallelism even with a single Construction Yard.
+		Valueable<bool> AllowParallelAIQueues_BuildingTabs_VirtualFactory;
+		Valueable<BuildingTypeClass*> AllowParallelAIQueues_BuildingTabs_VirtualFactoryType;
 		Valueable<bool> ForbidParallelAIQueues_Aircraft;
 		Valueable<bool> ForbidParallelAIQueues_Building;
 		Valueable<bool> ForbidParallelAIQueues_Infantry;
@@ -358,6 +364,9 @@ public:
 			, BuildingProductionQueue { false }
 
 			, AllowParallelAIQueues { true }
+			, AllowParallelAIQueues_BuildingTabs { false }
+			, AllowParallelAIQueues_BuildingTabs_VirtualFactory { false }
+			, AllowParallelAIQueues_BuildingTabs_VirtualFactoryType { nullptr }
 			, ForbidParallelAIQueues_Aircraft { false }
 			, ForbidParallelAIQueues_Building { false }
 			, ForbidParallelAIQueues_Infantry { false }

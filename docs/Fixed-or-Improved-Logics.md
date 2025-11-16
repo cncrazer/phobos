@@ -1303,6 +1303,37 @@ ForbidParallelAIQueues.Building=no  ; boolean
 ForbidParallelAIQueues=false        ; boolean
 ```
 
+### Parallel building tabs (Production + Defensive)
+
+- Allows AI to construct one Production building and one Defensive building concurrently, mirroring human behavior across sidebar tabs.
+- Controlled via `[GlobalControls] -> AllowParallelAIQueues.BuildingTabs`. Requires `AllowParallelAIQueues=yes`.
+- Defensive buildings are those with `BuildCat=Combat`. All other `BuildCat` values are considered Production.
+- The AI uses separate primary factories when available:
+  - `Primary_ForBuildings` handles Production (non-Combat) structures.
+  - `Primary_ForDefenses` handles Defensive (Combat) structures.
+  - If only one Construction Yard/primary is available for both tabs, there is only one building factory, so no parallelism is possible; both tabs share a single queue. To get true parallel building, provide two distinct primaries (e.g., two Construction Yards or an additional `Factory=BuildingType` building) and set primaries accordingly.
+- Honors existing limits and settings:
+  - Respects `ForbidParallelAIQueues.Building` and per-type `ForbidParallelAIQueues`.
+  - Respects build limits, prerequisites, power checks, and placement retries.
+
+In `rulesmd.ini`:
+```ini
+[GlobalControls]
+AllowParallelAIQueues=yes              ; required
+AllowParallelAIQueues.BuildingTabs=yes ; enable Production + Defensive concurrency for AI buildings
+ForbidParallelAIQueues.Building=no     ; optional: keep as no to allow building parallelism
+; Optional: enable a virtual building factory for AI.
+; When enabled, any additional `Factory=BuildingType` structure the AI owns serves as the
+; Defense factory automatically. You can optionally pin it to a specific BuildingType.
+AllowParallelAIQueues.BuildingTabs.VirtualFactory=no           ; default off
+AllowParallelAIQueues.BuildingTabs.VirtualFactoryType=         ; optional BuildingType ID (e.g., AIHelperYard)
+```
+
+Notes:
+- No per-building setup is required; classification is based on `BuildCat`. Ensure your defense types use `BuildCat=Combat`.
+- Parallelism requires two distinct primaries (factories). With a single Construction Yard, the engine only allows one building product at a time, for AI and human players alike.
+ - To enable parallelism when you only have one CY, supply any additional `Factory=BuildingType` structure for AI (e.g., a hidden `AIHelperYard`), and set `AllowParallelAIQueues.BuildingTabs.VirtualFactory=yes`. With the type unspecified, the engine will automatically treat the extra building factory as the Defense factory; optionally set `...VirtualFactoryType=AIHelperYard` to pin it.
+
 ### Force techno targeting in distributed frames to improve performance
 
 - When you create many technos in a same frame (i.e. starting the game with a campaign map that initially has a large number of technos), they will always scan for targets in a synchronous period, causing game lag. Increasing targeting delay alone will not make things better, as their targeting is still synchronized.

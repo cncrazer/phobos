@@ -1,6 +1,7 @@
 #include "Body.h"
 
 #include <Ext/House/Body.h>
+#include <Ext/Rules/Body.h>
 
 DEFINE_HOOK(0x4401BB, BuildingClass_AI_PickWithFreeDocks, 0x6)
 {
@@ -46,7 +47,36 @@ DEFINE_HOOK(0x4502F4, BuildingClass_Update_Factory_Phobos, 0x6)
 		switch (pFactory)
 		{
 		case AbstractType::BuildingType:
-			currFactory = &pOwnerExt->Factory_BuildingType;
+			// If building-tab parallelism is enabled, track separate factories for Production vs Defensive tabs.
+			if (RulesExt::Global()->AllowParallelAIQueues_BuildingTabs)
+			{
+				auto const pHouse = pThis->Owner;
+				bool isDefenseFactory = false;
+				// Prefer explicit virtual-factory classification when configured with a specific type
+				if (RulesExt::Global()->AllowParallelAIQueues_BuildingTabs_VirtualFactory
+					&& RulesExt::Global()->AllowParallelAIQueues_BuildingTabs_VirtualFactoryType
+					&& pThis->Type == RulesExt::Global()->AllowParallelAIQueues_BuildingTabs_VirtualFactoryType)
+				{
+					isDefenseFactory = true;
+				}
+				else if (pHouse->Primary_ForDefenses && pHouse->Primary_ForDefenses == pThis->Factory)
+				{
+					// Explicit defense primary
+					isDefenseFactory = true;
+				}
+				else if (RulesExt::Global()->AllowParallelAIQueues_BuildingTabs_VirtualFactory)
+				{
+					// Automatic virtual factory mode: first seen building factory becomes Production,
+					// the next distinct building factory becomes Defense.
+					if (pOwnerExt->Factory_BuildingType_Production && pOwnerExt->Factory_BuildingType_Production != pThis)
+						isDefenseFactory = true;
+				}
+				currFactory = isDefenseFactory ? &pOwnerExt->Factory_BuildingType_Defense : &pOwnerExt->Factory_BuildingType_Production;
+			}
+			else
+			{
+				currFactory = &pOwnerExt->Factory_BuildingType;
+			}
 			break;
 		case AbstractType::UnitType:
 			currFactory = naval ? &pOwnerExt->Factory_NavyType : &pOwnerExt->Factory_VehicleType;
@@ -77,7 +107,7 @@ DEFINE_HOOK(0x4502F4, BuildingClass_Update_Factory_Phobos, 0x6)
 			switch (pFactory)
 			{
 			case AbstractType::BuildingType:
-				if (RulesExt::Global()->ForbidParallelAIQueues_Building)
+				if (RulesExt::Global()->ForbidParallelAIQueues_Building || !RulesExt::Global()->AllowParallelAIQueues_BuildingTabs)
 					return Skip;
 
 				index = pOwner->ProducingBuildingTypeIndex;
@@ -145,8 +175,43 @@ DEFINE_HOOK(0x4CA07A, FactoryClass_AbandonProduction_Phobos, 0x8)
 	switch (pTechno->WhatAmI())
 	{
 	case AbstractType::Building:
-		if (RulesExt::Global()->ForbidParallelAIQueues_Building || forbid)
-			pOwnerExt->Factory_BuildingType = nullptr;
+		if (RulesExt::Global()->AllowParallelAIQueues_BuildingTabs)
+		{
+			bool isDefense = false;
+			if (RulesExt::Global()->AllowParallelAIQueues_BuildingTabs_VirtualFactory
+				&& RulesExt::Global()->AllowParallelAIQueues_BuildingTabs_VirtualFactoryType)
+			{
+				if (auto const pBld = abstract_cast<BuildingClass*>(pTechno))
+					isDefense = (pBld->Type == RulesExt::Global()->AllowParallelAIQueues_BuildingTabs_VirtualFactoryType);
+			}
+			else if (pFactory->Owner->Primary_ForDefenses && pFactory->Owner->Primary_ForDefenses == pFactory)
+			{
+				isDefense = true;
+			}
+			else if (RulesExt::Global()->AllowParallelAIQueues_BuildingTabs_VirtualFactory)
+			{
+				// Automatic virtual factory: if production factory exists and differs, this is defense
+				auto const pHouseExt = HouseExt::ExtMap.Find(pFactory->Owner);
+				if (pHouseExt->Factory_BuildingType_Production && pHouseExt->Factory_BuildingType_Production != pFactory)
+					isDefense = true;
+			}
+			if (RulesExt::Global()->ForbidParallelAIQueues_Building || forbid)
+			{
+				if (isDefense)
+					pOwnerExt->Factory_BuildingType_Defense = nullptr;
+				else
+					pOwnerExt->Factory_BuildingType_Production = nullptr;
+			}
+
+			// Also clear defense producing index if this was a defense factory abandoning a building
+			if (isDefense)
+				pOwnerExt->ProducingDefenseBuildingTypeIndex = -1;
+		}
+		else
+		{
+			if (RulesExt::Global()->ForbidParallelAIQueues_Building || forbid)
+				pOwnerExt->Factory_BuildingType = nullptr;
+		}
 		break;
 	case AbstractType::Unit:
 		if (!pType->Naval)
@@ -208,8 +273,18 @@ DEFINE_HOOK(0x44531F, BuildingClass_KickOutUnit_BuildingType_Phobos, 0xA)
 
 	auto const pHouseExt = HouseExt::ExtMap.Find(pFactory->Owner);
 
-	if (pHouseExt->Factory_BuildingType == pFactory)
-		pHouseExt->Factory_BuildingType = nullptr;
+	if (RulesExt::Global()->AllowParallelAIQueues && RulesExt::Global()->AllowParallelAIQueues_BuildingTabs)
+	{
+		if (pHouseExt->Factory_BuildingType_Defense == pFactory)
+			pHouseExt->Factory_BuildingType_Defense = nullptr;
+		else if (pHouseExt->Factory_BuildingType_Production == pFactory)
+			pHouseExt->Factory_BuildingType_Production = nullptr;
+	}
+	else
+	{
+		if (pHouseExt->Factory_BuildingType == pFactory)
+			pHouseExt->Factory_BuildingType = nullptr;
+	}
 
 	return 0;
 }

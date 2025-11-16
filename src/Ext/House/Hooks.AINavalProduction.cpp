@@ -2,6 +2,7 @@
 
 #include <FactoryClass.h>
 #include <TEventClass.h>
+#include <Ext/Rules/Body.h>
 
 // AI Naval queue bugfix hooks
 
@@ -63,10 +64,74 @@ DEFINE_HOOK(0x450319, BuildingClass_AI_Factory_NavalProductionFix, 0x6)
 
 	case AbstractType::Building:
 	case AbstractType::BuildingType:
-		index = pHouse->ProducingBuildingTypeIndex;
+		if (RulesExt::Global()->AllowParallelAIQueues && RulesExt::Global()->AllowParallelAIQueues_BuildingTabs)
+		{
+			bool isDefensePrimary = false;
+			// Use explicit virtual factory type if set
+			if (RulesExt::Global()->AllowParallelAIQueues_BuildingTabs_VirtualFactory
+				&& RulesExt::Global()->AllowParallelAIQueues_BuildingTabs_VirtualFactoryType
+				&& pThis->Type == RulesExt::Global()->AllowParallelAIQueues_BuildingTabs_VirtualFactoryType)
+			{
+				isDefensePrimary = true;
+			}
+			else if (pHouse->Primary_ForDefenses && pHouse->Primary_ForDefenses == pThis->Factory)
+			{
+				isDefensePrimary = true;
+			}
+			else if (RulesExt::Global()->AllowParallelAIQueues_BuildingTabs_VirtualFactory)
+			{
+				// Automatic virtual factory mode: if a separate production factory exists, treat others as defense
+				auto const pHouseExt = HouseExt::ExtMap.Find(pHouse);
+				if (pHouseExt->Factory_BuildingType_Production && pHouseExt->Factory_BuildingType_Production != pThis)
+					isDefensePrimary = true;
+			}
+			auto const pHouseExt = HouseExt::ExtMap.Find(pHouse);
 
-		if (index >= 0)
-			pTechnoType = BuildingTypeClass::Array.GetItem(index);
+			if (isDefensePrimary)
+			{
+				index = pHouseExt->ProducingDefenseBuildingTypeIndex;
+
+				if (index == -1)
+				{
+					int tmp = pHouse->ProducingBuildingTypeIndex;
+					if (tmp >= 0)
+					{
+						auto const pBldType = BuildingTypeClass::Array.GetItem(tmp);
+						if (pBldType && pBldType->BuildCat == BuildCat::Combat)
+						{
+							// move defense production to defense queue
+							pHouseExt->ProducingDefenseBuildingTypeIndex = tmp;
+							pHouse->ProducingBuildingTypeIndex = -1;
+							index = tmp;
+						}
+					}
+				}
+			}
+			else
+			{
+				// Production primary: ignore defense picks here
+				int tmp = pHouse->ProducingBuildingTypeIndex;
+				if (tmp >= 0)
+				{
+					auto const pBldType = BuildingTypeClass::Array.GetItem(tmp);
+					if (pBldType && pBldType->BuildCat == BuildCat::Combat)
+					{
+						tmp = -1; // routed to defense
+					}
+				}
+				index = tmp;
+			}
+
+			if (index >= 0)
+				pTechnoType = BuildingTypeClass::Array.GetItem(index);
+		}
+		else
+		{
+			index = pHouse->ProducingBuildingTypeIndex;
+
+			if (index >= 0)
+				pTechnoType = BuildingTypeClass::Array.GetItem(index);
+		}
 
 		break;
 
@@ -150,7 +215,11 @@ DEFINE_HOOK(0x4FE0A3, HouseClass_AI_RaiseMoney_NavalProductionFix, 0x6)
 	GET(HouseClass* const, pThis, ESI);
 
 	if (auto const pExt = HouseExt::ExtMap.TryFind(pThis))
+	{
 		pExt->ProducingNavalUnitTypeIndex = -1;
+		// Also clear defense building queue when raising money to recover
+		pExt->ProducingDefenseBuildingTypeIndex = -1;
+	}
 
 	return 0;
 }

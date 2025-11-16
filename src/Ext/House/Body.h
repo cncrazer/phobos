@@ -31,6 +31,8 @@ public:
 		CounterClass LimboVehicles;  // Currently owned vehicles in limbo
 
 		BuildingClass* Factory_BuildingType;
+		BuildingClass* Factory_BuildingType_Production;
+		BuildingClass* Factory_BuildingType_Defense;
 		BuildingClass* Factory_InfantryType;
 		BuildingClass* Factory_VehicleType;
 		BuildingClass* Factory_NavyType;
@@ -48,6 +50,7 @@ public:
 
 		int LastBuiltNavalVehicleType;
 		int ProducingNavalUnitTypeIndex;
+		int ProducingDefenseBuildingTypeIndex;
 
 		// Factories that exist but don't count towards multiple factory bonus.
 		int NumAirpads_NonMFB;
@@ -80,11 +83,14 @@ public:
 			, Factory_VehicleType { nullptr }
 			, Factory_NavyType { nullptr }
 			, Factory_AircraftType { nullptr }
+			, Factory_BuildingType_Production { nullptr }
+			, Factory_BuildingType_Defense { nullptr }
 			, AISuperWeaponDelayTimer {}
 			, RepairBaseNodes { }
 			, RestrictedFactoryPlants {}
 			, LastBuiltNavalVehicleType { -1 }
 			, ProducingNavalUnitTypeIndex { -1 }
+			, ProducingDefenseBuildingTypeIndex { -1 }
 			, CombatAlertTimer {}
 			, NumAirpads_NonMFB { 0 }
 			, NumBarracks_NonMFB { 0 }

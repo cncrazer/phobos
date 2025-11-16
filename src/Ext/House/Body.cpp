@@ -634,6 +634,8 @@ void HouseExt::ExtData::Serialize(T& Stm)
 		.Process(this->LimboInfantry)
 		.Process(this->LimboVehicles)
 		.Process(this->Factory_BuildingType)
+		.Process(this->Factory_BuildingType_Production)
+		.Process(this->Factory_BuildingType_Defense)
 		.Process(this->Factory_InfantryType)
 		.Process(this->Factory_VehicleType)
 		.Process(this->Factory_NavyType)
@@ -643,6 +645,7 @@ void HouseExt::ExtData::Serialize(T& Stm)
 		.Process(this->RestrictedFactoryPlants)
 		.Process(this->LastBuiltNavalVehicleType)
 		.Process(this->ProducingNavalUnitTypeIndex)
+		.Process(this->ProducingDefenseBuildingTypeIndex)
 		.Process(this->CombatAlertTimer)
 		.Process(this->NumAirpads_NonMFB)
 		.Process(this->NumBarracks_NonMFB)
@@ -683,6 +686,8 @@ bool HouseExt::SaveGlobals(PhobosStreamWriter& Stm)
 void HouseExt::ExtData::InvalidatePointer(void* ptr, bool bRemoved)
 {
 	AnnounceInvalidPointer(Factory_BuildingType, ptr);
+	AnnounceInvalidPointer(Factory_BuildingType_Production, ptr);
+	AnnounceInvalidPointer(Factory_BuildingType_Defense, ptr);
 	AnnounceInvalidPointer(Factory_InfantryType, ptr);
 	AnnounceInvalidPointer(Factory_VehicleType, ptr);
 	AnnounceInvalidPointer(Factory_NavyType, ptr);

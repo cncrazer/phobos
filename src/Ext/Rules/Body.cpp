@@ -171,6 +171,9 @@ void RulesExt::ExtData::LoadBeforeTypeData(RulesClass* pThis, CCINIClass* pINI)
 	this->BuildingProductionQueue.Read(exINI, GameStrings::General, "BuildingProductionQueue");
 
 	this->AllowParallelAIQueues.Read(exINI, "GlobalControls", "AllowParallelAIQueues");
+	this->AllowParallelAIQueues_BuildingTabs.Read(exINI, "GlobalControls", "AllowParallelAIQueues.BuildingTabs");
+	this->AllowParallelAIQueues_BuildingTabs_VirtualFactory.Read(exINI, "GlobalControls", "AllowParallelAIQueues.BuildingTabs.VirtualFactory");
+	this->AllowParallelAIQueues_BuildingTabs_VirtualFactoryType.Read(exINI, "GlobalControls", "AllowParallelAIQueues.BuildingTabs.VirtualFactoryType");
 	this->ForbidParallelAIQueues_Aircraft.Read(exINI, "GlobalControls", "ForbidParallelAIQueues.Aircraft");
 	this->ForbidParallelAIQueues_Building.Read(exINI, "GlobalControls", "ForbidParallelAIQueues.Building");
 	this->ForbidParallelAIQueues_Infantry.Read(exINI, "GlobalControls", "ForbidParallelAIQueues.Infantry");
@@ -476,6 +479,9 @@ void RulesExt::ExtData::Serialize(T& Stm)
 		.Process(this->NoQueueUpToUnload_Buildings)
 		.Process(this->BuildingProductionQueue)
 		.Process(this->AllowParallelAIQueues)
+		.Process(this->AllowParallelAIQueues_BuildingTabs)
+		.Process(this->AllowParallelAIQueues_BuildingTabs_VirtualFactory)
+		.Process(this->AllowParallelAIQueues_BuildingTabs_VirtualFactoryType)
 		.Process(this->ForbidParallelAIQueues_Aircraft)
 		.Process(this->ForbidParallelAIQueues_Building)
 		.Process(this->ForbidParallelAIQueues_Infantry)
