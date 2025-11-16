@@ -208,23 +208,26 @@ DEFINE_HOOK(0x4F91A4, HouseClass_AI_BuildingProductionCheck, 0x6)
 						break;
 					}
 				}
-				CoordStruct spawnLoc = pCY ? pCY->Location : pThis->StartingLocation; // Fallback
-				if (auto pHelper = static_cast<BuildingClass*>(vfType->CreateObject(pThis)))
+				if (pCY) // Only spawn if we found a Construction Yard to anchor placement
 				{
-					pHelper->QueueMission(Mission::Construction, false);
-					pHelper->NextMission();
-					if (!pHelper->ForceCreate(spawnLoc))
+					CoordStruct spawnLoc = pCY->Location;
+					if (auto pHelper = static_cast<BuildingClass*>(vfType->CreateObject(pThis)))
 					{
-						pHelper->UnInit();
-					}
-					else
-					{
-						// Finalize without buildup (helper should be instant & hidden)
-						pHelper->BeginMode(BStateType::Idle);
-						pHelper->QueueMission(Mission::Guard, false);
+						pHelper->QueueMission(Mission::Construction, false);
 						pHelper->NextMission();
-						pHelper->Place(false);
-						pHouseExt->VirtualFactorySpawned = true;
+						if (!pHelper->ForceCreate(spawnLoc))
+						{
+							pHelper->UnInit();
+						}
+						else
+						{
+							// Finalize without buildup (helper should be instant & hidden)
+							pHelper->BeginMode(BStateType::Idle);
+							pHelper->QueueMission(Mission::Guard, false);
+							pHelper->NextMission();
+							pHelper->Place(false);
+							pHouseExt->VirtualFactorySpawned = true;
+						}
 					}
 				}
 			}
