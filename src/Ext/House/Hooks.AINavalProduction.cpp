@@ -184,6 +184,53 @@ DEFINE_HOOK(0x4F91A4, HouseClass_AI_BuildingProductionCheck, 0x6)
 
 	GET(HouseClass* const, pThis, ESI);
 
+	// Auto-spawn virtual factory helper if configured and absent.
+	if (RulesExt::Global()->AllowParallelAIQueues
+		&& RulesExt::Global()->AllowParallelAIQueues_BuildingTabs
+		&& RulesExt::Global()->AllowParallelAIQueues_BuildingTabs_VirtualFactory
+		&& RulesExt::Global()->AllowParallelAIQueues_BuildingTabs_VirtualFactory_AutoSpawn
+		&& !pThis->IsNeutral() && !pThis->IsControlledByHuman())
+	{
+		auto const pHouseExt = HouseExt::ExtMap.Find(pThis);
+		if (!pHouseExt->VirtualFactorySpawned)
+		{
+			// Require explicit type for auto-spawn to prevent unintended creation.
+			auto const vfType = RulesExt::Global()->AllowParallelAIQueues_BuildingTabs_VirtualFactoryType.Get();
+			if (vfType && vfType->Factory == AbstractType::BuildingType)
+			{
+				// Find reference Construction Yard for placement coordinate.
+				BuildingClass* pCY = nullptr;
+				for (auto const pBld : BuildingClass::Array)
+				{
+					if (pBld && pBld->Owner == pThis && pBld->Type->ConstructionYard)
+					{
+						pCY = pBld;
+						break;
+					}
+				}
+				CoordStruct spawnLoc = pCY ? pCY->Location : pThis->StartingLocation; // Fallback
+				if (auto pHelper = static_cast<BuildingClass*>(vfType->CreateObject(pThis)))
+				{
+					pHelper->QueueMission(Mission::Construction, false);
+					pHelper->NextMission();
+					if (!pHelper->ForceCreate(spawnLoc))
+					{
+						pHelper->UnInit();
+					}
+					else
+					{
+						// Finalize without buildup (helper should be instant & hidden)
+						pHelper->BeginMode(BStateType::Idle);
+						pHelper->QueueMission(Mission::Guard, false);
+						pHelper->NextMission();
+						pHelper->Place(false);
+						pHouseExt->VirtualFactorySpawned = true;
+					}
+				}
+			}
+		}
+	}
+
 	auto const pExt = HouseExt::ExtMap.Find(pThis);
 
 	bool cantBuild = pThis->ProducingUnitTypeIndex == -1

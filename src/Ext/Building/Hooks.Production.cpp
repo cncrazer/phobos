@@ -177,12 +177,13 @@ DEFINE_HOOK(0x4CA07A, FactoryClass_AbandonProduction_Phobos, 0x8)
 	case AbstractType::Building:
 		if (RulesExt::Global()->AllowParallelAIQueues_BuildingTabs)
 		{
+			// Host building for this factory
+			auto const pBuildingHost = static_cast<BuildingClass*>(pTechno);
 			bool isDefense = false;
 			if (RulesExt::Global()->AllowParallelAIQueues_BuildingTabs_VirtualFactory
 				&& RulesExt::Global()->AllowParallelAIQueues_BuildingTabs_VirtualFactoryType)
 			{
-				if (auto const pBld = abstract_cast<BuildingClass*>(pTechno))
-					isDefense = (pBld->Type == RulesExt::Global()->AllowParallelAIQueues_BuildingTabs_VirtualFactoryType);
+				isDefense = (pBuildingHost->Type == RulesExt::Global()->AllowParallelAIQueues_BuildingTabs_VirtualFactoryType);
 			}
 			else if (pFactory->Owner->Primary_ForDefenses && pFactory->Owner->Primary_ForDefenses == pFactory)
 			{
@@ -192,7 +193,7 @@ DEFINE_HOOK(0x4CA07A, FactoryClass_AbandonProduction_Phobos, 0x8)
 			{
 				// Automatic virtual factory: if production factory exists and differs, this is defense
 				auto const pHouseExt = HouseExt::ExtMap.Find(pFactory->Owner);
-				if (pHouseExt->Factory_BuildingType_Production && pHouseExt->Factory_BuildingType_Production != pFactory)
+				if (pHouseExt->Factory_BuildingType_Production && pHouseExt->Factory_BuildingType_Production != pBuildingHost)
 					isDefense = true;
 			}
 			if (RulesExt::Global()->ForbidParallelAIQueues_Building || forbid)

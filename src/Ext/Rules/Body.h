@@ -116,6 +116,7 @@ public:
 		// to enable Production+Defensive parallelism even with a single Construction Yard.
 		Valueable<bool> AllowParallelAIQueues_BuildingTabs_VirtualFactory;
 		Valueable<BuildingTypeClass*> AllowParallelAIQueues_BuildingTabs_VirtualFactoryType;
+		Valueable<bool> AllowParallelAIQueues_BuildingTabs_VirtualFactory_AutoSpawn; // auto-create helper factory for AI
 		Valueable<bool> ForbidParallelAIQueues_Aircraft;
 		Valueable<bool> ForbidParallelAIQueues_Building;
 		Valueable<bool> ForbidParallelAIQueues_Infantry;
@@ -367,6 +368,7 @@ public:
 			, AllowParallelAIQueues_BuildingTabs { false }
 			, AllowParallelAIQueues_BuildingTabs_VirtualFactory { false }
 			, AllowParallelAIQueues_BuildingTabs_VirtualFactoryType { nullptr }
+			, AllowParallelAIQueues_BuildingTabs_VirtualFactory_AutoSpawn { false }
 			, ForbidParallelAIQueues_Aircraft { false }
 			, ForbidParallelAIQueues_Building { false }
 			, ForbidParallelAIQueues_Infantry { false }

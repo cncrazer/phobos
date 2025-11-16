@@ -51,6 +51,7 @@ public:
 		int LastBuiltNavalVehicleType;
 		int ProducingNavalUnitTypeIndex;
 		int ProducingDefenseBuildingTypeIndex;
+		bool VirtualFactorySpawned;
 
 		// Factories that exist but don't count towards multiple factory bonus.
 		int NumAirpads_NonMFB;
@@ -91,6 +92,7 @@ public:
 			, LastBuiltNavalVehicleType { -1 }
 			, ProducingNavalUnitTypeIndex { -1 }
 			, ProducingDefenseBuildingTypeIndex { -1 }
+			, VirtualFactorySpawned { false }
 			, CombatAlertTimer {}
 			, NumAirpads_NonMFB { 0 }
 			, NumBarracks_NonMFB { 0 }

@@ -174,6 +174,7 @@ void RulesExt::ExtData::LoadBeforeTypeData(RulesClass* pThis, CCINIClass* pINI)
 	this->AllowParallelAIQueues_BuildingTabs.Read(exINI, "GlobalControls", "AllowParallelAIQueues.BuildingTabs");
 	this->AllowParallelAIQueues_BuildingTabs_VirtualFactory.Read(exINI, "GlobalControls", "AllowParallelAIQueues.BuildingTabs.VirtualFactory");
 	this->AllowParallelAIQueues_BuildingTabs_VirtualFactoryType.Read(exINI, "GlobalControls", "AllowParallelAIQueues.BuildingTabs.VirtualFactoryType");
+	this->AllowParallelAIQueues_BuildingTabs_VirtualFactory_AutoSpawn.Read(exINI, "GlobalControls", "AllowParallelAIQueues.BuildingTabs.VirtualFactory.AutoSpawn");
 	this->ForbidParallelAIQueues_Aircraft.Read(exINI, "GlobalControls", "ForbidParallelAIQueues.Aircraft");
 	this->ForbidParallelAIQueues_Building.Read(exINI, "GlobalControls", "ForbidParallelAIQueues.Building");
 	this->ForbidParallelAIQueues_Infantry.Read(exINI, "GlobalControls", "ForbidParallelAIQueues.Infantry");
@@ -245,7 +246,7 @@ void RulesExt::ExtData::LoadBeforeTypeData(RulesClass* pThis, CCINIClass* pINI)
 	this->DamageOwnerMultiplier_Berzerk.Read(exINI, GameStrings::CombatDamage, "DamageOwnerMultiplier.Berzerk");
 	this->DamageAlliesMultiplier_Berzerk.Read(exINI, GameStrings::CombatDamage, "DamageAlliesMultiplier.Berzerk");
 	this->DamageEnemiesMultiplier_Berzerk.Read(exINI, GameStrings::CombatDamage, "DamageEnemiesMultiplier.Berzerk");
-		
+
 	this->AircraftLevelLightMultiplier.Read(exINI, GameStrings::AudioVisual, "AircraftLevelLightMultiplier");
 	this->JumpjetLevelLightMultiplier.Read(exINI, GameStrings::AudioVisual, "JumpjetLevelLightMultiplier");
 
@@ -323,7 +324,7 @@ void RulesExt::ExtData::LoadBeforeTypeData(RulesClass* pThis, CCINIClass* pINI)
 	this->PlayerAttackMoveTargetingDelay.Read(exINI, GameStrings::General, "PlayerAttackMoveTargetingDelay");
 	this->DistributeTargetingFrame.Read(exINI, GameStrings::General, "DistributeTargetingFrame");
 	this->DistributeTargetingFrame_AIOnly.Read(exINI, GameStrings::General, "DistributeTargetingFrame.AIOnly");
-	
+
 	this->InfantryAutoDeploy.Read(exINI, GameStrings::General, "InfantryAutoDeploy");
 
 	this->AdjacentWallDamage.Read(exINI, GameStrings::CombatDamage, "AdjacentWallDamage");
@@ -482,6 +483,7 @@ void RulesExt::ExtData::Serialize(T& Stm)
 		.Process(this->AllowParallelAIQueues_BuildingTabs)
 		.Process(this->AllowParallelAIQueues_BuildingTabs_VirtualFactory)
 		.Process(this->AllowParallelAIQueues_BuildingTabs_VirtualFactoryType)
+		.Process(this->AllowParallelAIQueues_BuildingTabs_VirtualFactory_AutoSpawn)
 		.Process(this->ForbidParallelAIQueues_Aircraft)
 		.Process(this->ForbidParallelAIQueues_Building)
 		.Process(this->ForbidParallelAIQueues_Infantry)

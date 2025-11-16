@@ -1326,13 +1326,21 @@ ForbidParallelAIQueues.Building=no     ; optional: keep as no to allow building 
 ; When enabled, any additional `Factory=BuildingType` structure the AI owns serves as the
 ; Defense factory automatically. You can optionally pin it to a specific BuildingType.
 AllowParallelAIQueues.BuildingTabs.VirtualFactory=no           ; default off
-AllowParallelAIQueues.BuildingTabs.VirtualFactoryType=         ; optional BuildingType ID (e.g., AIHelperYard)
+AllowParallelAIQueues.BuildingTabs.VirtualFactoryType=         ; REQUIRED for AutoSpawn. Optional for manual pinning (e.g., AIHelperYard). No implicit default.
+AllowParallelAIQueues.BuildingTabs.VirtualFactory.AutoSpawn=no ; auto-spawn exactly one helper of VirtualFactoryType for AI if it lacks a second building factory
 ```
 
 Notes:
 - No per-building setup is required; classification is based on `BuildCat`. Ensure your defense types use `BuildCat=Combat`.
 - Parallelism requires two distinct primaries (factories). With a single Construction Yard, the engine only allows one building product at a time, for AI and human players alike.
  - To enable parallelism when you only have one CY, supply any additional `Factory=BuildingType` structure for AI (e.g., a hidden `AIHelperYard`), and set `AllowParallelAIQueues.BuildingTabs.VirtualFactory=yes`. With the type unspecified, the engine will automatically treat the extra building factory as the Defense factory; optionally set `...VirtualFactoryType=AIHelperYard` to pin it.
+ - To automatically provide the helper building (avoid map setup), also set `AllowParallelAIQueues.BuildingTabs.VirtualFactory.AutoSpawn=yes` and define `VirtualFactoryType`. The AI will spawn one near its Construction Yard at runtime.
+ - VirtualFactoryType has NO default: leaving it blank means AutoSpawn will do nothing and Defense classification falls back to primaries or automatic first/second factory ordering.
+ - Classification precedence (VirtualFactory enabled):
+   1) If `VirtualFactoryType` is set: buildings of that type are Defense factories.
+   2) Else if `Primary_ForDefenses` points to a factory: that factory is Defense.
+   3) Else automatic: first distinct building factory seen -> Production; second distinct -> Defense.
+ - AutoSpawn safeguards: spawns only once per AI house, requires `VirtualFactoryType` with `Factory=BuildingType`, skips neutral & human houses.
 
 ### Force techno targeting in distributed frames to improve performance
 
