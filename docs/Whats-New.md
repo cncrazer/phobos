@@ -329,14 +329,13 @@ HideShakeEffects=false           ; boolean
   25=Local variables,-4
   26=Global variables,-5
   27=Global variables,-6
-  ```
+  ````
 
 ### For Map Editor (WAE)
+#### For `Actions.ini`
 
 ````{dropdown} Click to show
 
-  In `Actions.ini`:
-  ```ini
   [Action500]
   Name=Save game [Phobos]
   Description=Saves the game with specified filename.
@@ -455,13 +454,12 @@ HideShakeEffects=false           ; boolean
   Description=Delete banner with specified ID.
   IDOverride=802
   P1Type=Number
-  ```
+  ````
 
-### For Events.ini
+#### For `Events.ini`
 
 ````{dropdown} Click to show
 
-  ```ini
   [Event500]
   Name=Local variable is greater than  [Phobos]
   Description=Triggers when local variable is greater than specified value.
@@ -761,11 +759,10 @@ HideShakeEffects=false           ; boolean
   P2Type=Number
   ```
 
-### For ScriptActions.ini
+#### For `ScriptActions.ini`
 
 ````{dropdown} Click to show
 
-  ```ini
   [Script10000]
   Name=Attack nearest repeat [Phobos]
   Description=Attack nearest repeatedly.
