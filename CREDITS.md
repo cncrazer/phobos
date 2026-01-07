@@ -661,6 +661,7 @@ This page lists all the individual contributions to the project by their author.
   - Allow customizing whether to synchronously change the owner of the RadioLink-linked units when the owner of a building changes
   - Toggle per-target warhead effects apply timing
   - Extra range for chasing and pre-firing
+  - Fix an issue that rockets do not consider the destination altitude during climbing
 - **solar-III (凤九歌)**
   - Target scanning delay customization (documentation)
   - Skip target scanning function calling for unarmed technos (documentation)
