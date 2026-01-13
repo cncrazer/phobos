@@ -397,6 +397,7 @@ This page lists all the individual contributions to the project by their author.
   - Fix the bug that hover vehicle will sink if destroyed on bridge
   - Fix the bug that armor multiplier of new attacheffect will have extra take effect once if restricted warheads
   - Allow setting whether `AlternateFLH` applies to vehicle passengers in the transport unit
+  - Fix the bug that weapon cannot used to intercept on gound bullet if it's projectile has `AG=no`
 - **Apollo** - Translucent SHP drawing patches
 - **ststl**:
   - Customizable `ShowTimer` priority of superweapons

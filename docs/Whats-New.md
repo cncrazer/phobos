@@ -314,6 +314,7 @@ HideLightFlashEffects=false      ; boolean
 ```{dropdown} Click to show
 :open:
 
+- Fixed the bug that weapon cannot used to intercept on gound bullet if it's projectile has `AG=no` (by NetsuNegi)
 Vanilla fixes:
 - Fixed preplaced aircraft outside visible map being incorrectly flagged as crashing under certain conditions (by Starkku)
 
