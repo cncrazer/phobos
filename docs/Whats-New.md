@@ -528,6 +528,7 @@ Vanilla fixes:
 - Fixed the issue where non-repairer units needed sensors to attack cloaked friendly units (by TaranDahl)
 - Fixed an issue that rockets do not consider the destination altitude during climbing (by TaranDahl)
 - Fixed the bug that if object has been removed from LogicClass in Update(), next object will be skip (by NetsuNegi)
+- Fixed cursor from being hardcoded to update/render 60 times a second no matter how fast the game is rendering. Now the Cursor will update and render much more frequently (by Fridge)
 
 Phobos fixes:
 - Fixed the bug that `AllowAirstrike=no` cannot completely prevent air strikes from being launched against it (by NetsuNegi)
