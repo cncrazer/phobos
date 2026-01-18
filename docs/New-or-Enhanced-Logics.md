@@ -1322,7 +1322,7 @@ In `rulesmd.ini`:
 AttackMove.IgnoreWeaponCheck=false    ; boolean
 ```
 
-### Attack non-threatening structures
+### Attack non-threatening structures (Techno)
 
 - You can now freely configure whether units can automatically target non-threatening structures.
   - `AutoTarget.NoThreatBuildings` affects player-controlled units, `AutoTargetAI.NoThreatBuildings` affects other units.
@@ -2742,7 +2742,7 @@ In `rulesmd.ini`:
 AreaFire.Target=base ; AreaFire Target Enumeration (base|self|random)
 ```
 
-### Attack non-threatening structures
+### Attack non-threatening structures (Weapon)
 
 - `AttackNoThreatBuildings` permits shooters to attack non-threatening structures. This setting overrides other configurations.
 
@@ -2782,17 +2782,6 @@ Burst.NoDelay=false   ; boolean
 ```{note}
 - This is useless for buildings and aircraft.
 - This will ignore `Burst.Delays` setting.
-```
-
-### Can attack allies
-
-- Weapons now support `AttackFriendlies` and `AttackCursorOnFriendlies`, They override the firer's `AttackFriendlies` and `AttackCursorOnFriendlies`.
-
-In `rulesmd.ini`:
-```ini
-[SOMEWEAPON]                ; WeaponType
-AttackFriendlies=           ; boolean
-AttackCursorOnFriendlies=   ; boolean
 ```
 
 ### Delayed firing
