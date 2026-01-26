@@ -1331,6 +1331,12 @@ void TechnoExt::KillSelf(TechnoClass* pThis, AutoDeathBehavior deathOption, Anim
 			AnimExt::ExtMap.Find(pAnim)->SetInvoker(pThis);
 		}
 
+		if (const auto pBuilding = abstract_cast<BuildingClass*, true>(pThis))
+		{
+			if (pThis->BunkerLinkedItem)
+				pBuilding->UnloadBunker();
+		}
+
 		pThis->KillPassengers(pThis);
 		pThis->Stun();
 		pThis->Limbo();
