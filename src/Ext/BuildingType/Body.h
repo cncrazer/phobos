@@ -116,7 +116,7 @@ public:
 			, OccupierMuzzleFlashes()
 			, Powered_KillSpawns { false }
 			, CanC4_AllowZeroDamage { false }
-			, InitialStrength_Cloning { { 1.0, 0.0 } }
+			, InitialStrength_Cloning { { 1.0 } }
 			, ExcludeFromMultipleFactoryBonus { false }
 			, Refinery_UseStorage { false }
 			, Grinding_AllowAllies { false }

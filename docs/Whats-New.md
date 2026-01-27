@@ -602,6 +602,7 @@ Phobos fixes:
 - Fixed the positive value of `Reveal` on warhead (by NetsuNegi)
 - Fixed the bug that weapon cannot used to intercept on gound bullet if it's projectile has `AG=no` (by NetsuNegi)
 - Fixed the bug that if there's a tank in tank bunker, tank bunker use auto death by vanish will cause tank get stuck and game will crash quickly (by NetsuNegi)
+- Fixed `ROF.RandomDelay` incorrectly defaulting to 0 (no delay) instead of random value in range 0-2 (by Starkku)
 
 Fixes / interactions with other extensions:
 <!--  - Allowed `AuxBuilding` and Ares' `SW.Aux/NegBuildings` to count building upgrades (by Ollerus)  -->
