@@ -310,15 +310,27 @@ HideLightFlashEffects=false      ; boolean
 
 ## Changelog
 
-### 0.4.0.1
+### 0.4.0.2
 
 ```{dropdown} Click to show
 :open:
 
+Phobos fixes:
+- Fixed `AircraftDockingDirs` being reset if the BuildingType section is redefined in map file (by Starkku)
+- Fixed harvester counter not accounting for type converting harvesters (by Ollerus)
 - Fixed the bug that weapon cannot used to intercept on gound bullet if it's projectile has `AG=no` (by NetsuNegi)
 - Fixed the bug that if there's a tank in tank bunker, tank bunker use auto death by vanish will cause tank get stuck and game will crash quickly (by NetsuNegi)
 - Fixed `ROF.RandomDelay` incorrectly defaulting to 0 (no delay) instead of random value in range 0-2 (by Starkku)
+- Fixed `CreateUnit.Owner=killer` not working correctly with `DestroyAnim(s)` (by TaranDahl)
+- Fixed a bug causing erratic behaviour with units scattering f.ex moving away from buildings being placed (by Starkku)
 - Fixed an oversight that prevented units deploying into buildings from deploying on top of `CanBeBuiltOn` TerrainTypes (by Starkku)
+- Animation-fired weapons now snap on the object they are attached to if present (by TaranDahl)
+```
+
+### 0.4.0.1
+
+```{dropdown} Click to show
+
 Vanilla fixes:
 - Fixed preplaced aircraft outside visible map being incorrectly flagged as crashing under certain conditions (by Starkku)
 
