@@ -609,6 +609,7 @@ Phobos fixes:
 - Fixed the bug that if there's a tank in tank bunker, tank bunker use auto death by vanish will cause tank get stuck and game will crash quickly (by NetsuNegi)
 - Fixed `ROF.RandomDelay` incorrectly defaulting to 0 (no delay) instead of random value in range 0-2 (by Starkku)
 - Fixed `Adjacent.Disallowed` not blocking placement if other eligible buildings were in range (by Starkku)
+- Fixed an oversight that prevented units deploying into buildings from deploying on top of `CanBeBuiltOn` TerrainTypes (by Starkku)
 
 Fixes / interactions with other extensions:
 <!--  - Allowed `AuxBuilding` and Ares' `SW.Aux/NegBuildings` to count building upgrades (by Ollerus)  -->
