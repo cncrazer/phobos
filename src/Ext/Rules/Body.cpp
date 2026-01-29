@@ -346,6 +346,7 @@ void RulesExt::ExtData::LoadBeforeTypeData(RulesClass* pThis, CCINIClass* pINI)
 
 	this->AutoTarget_NoThreatBuildings.Read(exINI, GameStrings::General, "AutoTarget.NoThreatBuildings");
 	this->AutoTargetAI_NoThreatBuildings.Read(exINI, GameStrings::General, "AutoTargetAI.NoThreatBuildings");
+	this->UnitsUnsellable.Read(exINI, GameStrings::General, "UnitsUnsellable");
 
 	// Section AITargetTypes
 	int itemsCount = pINI->GetKeyCount("AITargetTypes");
@@ -634,6 +635,7 @@ void RulesExt::ExtData::Serialize(T& Stm)
 		.Process(this->ExtraRange_Prefiring_IncludeBurst)
 		.Process(this->AutoTarget_NoThreatBuildings)
 		.Process(this->AutoTargetAI_NoThreatBuildings)
+		.Process(this->UnitsUnsellable)
 		;
 }
 

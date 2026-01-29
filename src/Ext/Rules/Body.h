@@ -296,6 +296,8 @@ public:
 		
 		Valueable<bool> AutoTarget_NoThreatBuildings;
 		Valueable<bool> AutoTargetAI_NoThreatBuildings;
+		
+		Valueable<bool> UnitsUnsellable;
     
 		ExtData(RulesClass* OwnerObject) : Extension<RulesClass>(OwnerObject)
 			, Storage_TiberiumIndex { -1 }
@@ -538,6 +540,7 @@ public:
 
 			, AutoTarget_NoThreatBuildings { false }
 			, AutoTargetAI_NoThreatBuildings { true }
+			, UnitsUnsellable { false }
 		{ }
 
 		virtual ~ExtData() = default;
