@@ -9,10 +9,10 @@ DEFINE_HOOK(0x4D9F7B, FootClass_Sell, 0x6)
 	enum { ReadyToVanish = 0x4D9FCB };
 	GET(FootClass*, pThis, ESI);
 
-	// Check if this is a vehicle and UnitsUnsellable is enabled
+	// Check if this is a vehicletype
 	// If so, set refund to 0 (units being sold normally, not grinded)
 	int money = pThis->GetRefund();
-	
+
 	if (RulesExt::Global()->UnitsUnsellable.Get())
 	{
 		// Only apply to vehicles (not buildings, not infantry)
@@ -21,7 +21,7 @@ DEFINE_HOOK(0x4D9F7B, FootClass_Sell, 0x6)
 			money = 0;
 		}
 	}
-	
+
 	const auto pOwner = pThis->Owner;
 	pOwner->GiveMoney(money);
 
