@@ -1019,6 +1019,10 @@ AutoFire=false             ; boolean
 AutoFire.TargetSelf=false  ; boolean
 ```
 
+```{note}
+To make this logic work properly, you need to ensure that there is no flag like `CanPassiveAquire=false` set on units that prevents target scanning.
+```
+
 ### Build limit group
 
 - You can now make different technos share build limit in a group.
@@ -1061,7 +1065,7 @@ Convert.ComputerToHuman=    ; TechnoType
 
 ### Custom tint on TechnoTypes
 
-- A tint effect similar to that used by Iron Curtain / Force Shield or `Psychedelic=true` Warheads can be applied to TechnoTypes naturally by setting `Tint.Color` and/or `Tint Intensity`.
+- A tint effect similar to that used by Iron Curtain / Force Shield or `Psychedelic=true` Warheads can be applied to TechnoTypes naturally by setting `Tint.Color` and/or `Tint.Intensity`.
   - `Tint.Intensity` is additive lighting increase/decrease - 1.0 is the default object lighting.
   - `Tint.VisibleToHouses` can be used to customize which houses can see the tint effect.
   - Tint effects can also be applied by [attached effects](#attached-effects) and on [shields](#shields).
@@ -1082,10 +1086,10 @@ Tint.VisibleToHouses=all  ; List of Affected House Enumeration (none|owner/self|
 - `OpenTopped.ShareTransportTarget` controls whether or not the current target of the transport itself is passed to the passengers as well.
 
 ```ini
-[SOMETECHNO]                              ; TechnoType
-OpenTopped.RangeBonus=                    ; integer, override of the global default
-OpenTopped.DamageMultiplier=              ; floating point value, override of the global default
-OpenTopped.WarpDistance=                  ; integer, override of the global default
+[SOMETECHNO]                              ; TechnoType, transport with OpenTopped=yes
+OpenTopped.RangeBonus=                    ; integer, default to [CombatDamage] -> OpenToppedRangeBonus
+OpenTopped.DamageMultiplier=              ; floating point value, default to [CombatDamage] -> OpenToppedDamageMultiplier
+OpenTopped.WarpDistance=                  ; integer, default to [CombatDamage] -> OpenToppedWarpDistance
 OpenTopped.IgnoreRangefinding=false       ; boolean
 OpenTopped.AllowFiringIfDeactivated=true  ; boolean
 OpenTopped.ShareTransportTarget=true      ; boolean
