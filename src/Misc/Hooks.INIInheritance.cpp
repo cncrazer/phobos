@@ -5,6 +5,7 @@
 #include <vector>
 #include <set>
 #include <unordered_map>
+#include <cstring>
 
 namespace INIInheritance
 {
@@ -71,6 +72,23 @@ namespace INIInheritance
 	CCINIClass* LastINIFile = nullptr;
 	std::set<std::string> SavedIncludes;
 	std::unordered_map<int, std::string, Passthrough> Inherits;
+	bool SkipIncludeProcessing = false;
+
+	bool IsMapFile(const FileClass* file)
+	{
+		if (!file)
+			return false;
+
+		const auto filename = file->GetFileName();
+		if (!filename)
+			return false;
+
+		const auto length = std::strlen(filename);
+		if (length < 4)
+			return false;
+
+		return _stricmp(filename + length - 4, ".map") == 0;
+	}
 }
 
 int INIInheritance::ReadStringUseCRCActual(CCINIClass* ini, int sectionCRC, int entryCRC, const char* defaultValue, char* buffer, int length, bool useCurrentSection)
@@ -214,6 +232,13 @@ DEFINE_HOOK(0x528BAC, INIClass_GetString_Inheritance_NoEntry, 0xA)
 DEFINE_HOOK(0x474230, CCINIClass_Load_Inheritance, 0x5)
 {
 	GET(CCINIClass*, ini, ESI);
+	GET_STACK(FileClass*, file, 0x4);
+
+	if (INIInheritance::SkipIncludeProcessing)
+	{
+		INIInheritance::SkipIncludeProcessing = false;
+		return 0;
+	}
 
 	// if we're in a different CCINIClass now, clear old data
 	if (ini != INIInheritance::LastINIFile)
@@ -244,6 +269,18 @@ DEFINE_HOOK(0x474230, CCINIClass_Load_Inheritance, 0x5)
 			INIInheritance::LastINIFile->ReadCCFile(&file, false, false);
 		else
 			Debug::FatalErrorAndExit("Included INI file %s does not exist", node.Data->Value);
+	}
+
+	// For map files, ensure the map itself overrides included values by reapplying it after includes.
+	if (INIInheritance::IsMapFile(file))
+	{
+		const auto filename = file ? file->GetFileName() : nullptr;
+		if (filename && *filename)
+		{
+			INIInheritance::SkipIncludeProcessing = true;
+			CCFileClass mapFile(filename);
+			ini->ReadCCFile(&mapFile, false, false);
+		}
 	}
 
 	return 0;
