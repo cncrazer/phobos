@@ -116,6 +116,11 @@ public:
 		Valueable<bool> DisplayIncome_AllowAI;
 		Valueable<AffectedHouse> DisplayIncome_Houses;
 
+		Valueable<bool> DrainMoneyDisplay;
+		Valueable<AffectedHouse> DrainMoneyDisplay_Houses;
+		Valueable<bool> DrainMoneyDisplay_OnTarget;
+		Valueable<bool> DrainMoneyDisplay_OnTarget_UseDisplayIncome;
+
 		Valueable<bool> AllowDeployControlledMCV;
 
 		Valueable<bool> TypeSelectUseIFVMode;
@@ -407,6 +412,10 @@ public:
 			, DisplayIncome { false }
 			, DisplayIncome_AllowAI { true }
 			, DisplayIncome_Houses { AffectedHouse::All }
+			, DrainMoneyDisplay { false }
+			, DrainMoneyDisplay_Houses { AffectedHouse::All }
+			, DrainMoneyDisplay_OnTarget { false }
+			, DrainMoneyDisplay_OnTarget_UseDisplayIncome { true }
 			, CrateOnlyOnLand { false }
 			, UnitCrateVehicleCap { 50 }
 			, FreeMCV_CreditsThreshold { 1500 }
