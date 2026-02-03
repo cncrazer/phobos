@@ -305,7 +305,10 @@ public:
 		
 		Valueable<bool> AutoTarget_NoThreatBuildings;
 		Valueable<bool> AutoTargetAI_NoThreatBuildings;
-    
+
+		Valueable<Mission> ParadropMission;
+		Valueable<Mission> AIParadropMission;
+
 		ExtData(RulesClass* OwnerObject) : Extension<RulesClass>(OwnerObject)
 			, Storage_TiberiumIndex { -1 }
 			, HarvesterDumpAmount { 0.0f }
@@ -554,6 +557,9 @@ public:
 
 			, AutoTarget_NoThreatBuildings { false }
 			, AutoTargetAI_NoThreatBuildings { true }
+
+			, ParadropMission { Mission::Guard }
+			, AIParadropMission { Mission::Hunt }
 		{ }
 
 		virtual ~ExtData() = default;

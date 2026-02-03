@@ -472,6 +472,9 @@ public:
 		Nullable<bool> DrainMoneyDisplay_OnTarget;
 		Nullable<bool> DrainMoneyDisplay_OnTarget_UseDisplayIncome;
 
+		Nullable<Mission> ParadropMission;
+		Nullable<Mission> AIParadropMission;
+
 		ExtData(TechnoTypeClass* OwnerObject) : Extension<TechnoTypeClass>(OwnerObject)
 			, HealthBar_Hide { false }
 			, HealthBar_HidePips { false }
@@ -897,6 +900,9 @@ public:
 			, DrainMoneyDisplay_Offset { Point2D::Empty }
 			, DrainMoneyDisplay_OnTarget {}
 			, DrainMoneyDisplay_OnTarget_UseDisplayIncome {}
+
+			, ParadropMission {}
+			, AIParadropMission {}
 		{ }
 
 		virtual ~ExtData() = default;

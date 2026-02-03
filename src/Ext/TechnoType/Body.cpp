@@ -1146,7 +1146,10 @@ void TechnoTypeExt::ExtData::LoadFromINIFile(CCINIClass* const pINI)
 	this->DrainMoneyDisplay_Offset.Read(exINI, pSection, "DrainMoneyDisplay.Offset");
 	this->DrainMoneyDisplay_OnTarget.Read(exINI, pSection, "DrainMoneyDisplay.OnTarget");
 	this->DrainMoneyDisplay_OnTarget_UseDisplayIncome.Read(exINI, pSection, "DrainMoneyDisplay.OnTarget.UseDisplayIncome");
-	
+
+	this->ParadropMission.Read(exINI, pSection, "ParadropMission");
+	this->AIParadropMission.Read(exINI, pSection, "AIParadropMission");
+
 	// Ares 0.2
 	this->RadarJamRadius.Read(exINI, pSection, "RadarJamRadius");
 
@@ -1845,6 +1848,9 @@ void TechnoTypeExt::ExtData::Serialize(T& Stm)
 		.Process(this->DrainMoneyDisplay_Offset)
 		.Process(this->DrainMoneyDisplay_OnTarget)
 		.Process(this->DrainMoneyDisplay_OnTarget_UseDisplayIncome)
+
+		.Process(this->ParadropMission)
+		.Process(this->AIParadropMission)
 		;
 }
 void TechnoTypeExt::ExtData::LoadFromStream(PhobosStreamReader& Stm)

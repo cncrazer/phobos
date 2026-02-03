@@ -1646,3 +1646,31 @@ DEFINE_HOOK(0x6F85CF, TechnoClass_CanAutoTarget_AttackNoThreatBuildings, 0xA)
 }
 
 #pragma endregion
+
+#pragma region ParadropMission
+
+static bool __fastcall FootClass_Paradrop(FootClass* pThis, void*, const CoordStruct& coords)
+{
+	if (!pThis->ObjectClass::SpawnParachuted(coords))
+		return false;
+
+	auto const pTypeExt = TechnoExt::ExtMap.Find(pThis)->TypeExtData;
+	Mission mission;
+
+	if (pThis->Owner->IsControlledByHuman())
+		mission = pTypeExt->ParadropMission.Get(RulesExt::Global()->ParadropMission);
+	else
+		mission = pTypeExt->AIParadropMission.Get(RulesExt::Global()->AIParadropMission);
+
+	pThis->QueueMission(mission, false);
+
+	if (pThis->WhatAmI() == AbstractType::Infantry)
+		static_cast<InfantryClass*>(pThis)->PlayAnim(Sequence::Paradrop, true, false);
+
+	return true;
+}
+
+DEFINE_FUNCTION_JUMP(VTABLE, 0x7EB140, FootClass_Paradrop) // Replace game's original function for infantry paradrops for consistency.
+DEFINE_FUNCTION_JUMP(VTABLE, 0x7F5D58, FootClass_Paradrop) // Replace ObjectClass::Paradrop in UnitClass virtual table.
+
+#pragma endregion

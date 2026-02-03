@@ -1413,6 +1413,21 @@ OreGathering.FramesPerDir=15     ; List of integers
 OreGathering.Tiberiums=0         ; List of Tiberium IDs
 ```
 
+### Customizable paradrop missions
+
+- By default paradropped infantry default to `Guard` for human players and `Hunt` for AI players. This has now been changed to be the default for vehicles as well which defaulted to `Guard` for all players and customizable globally and per TechnoType which default to the global settings under `[General]`.
+
+In `rulesmd.ini`:
+```ini
+[General]
+ParadropMission=Guard   ; MissionType
+AIParadropMission=Hunt  ; MissionType
+
+[SOMETECHNO]            ; TechnoType
+ParadropMission=        ; MissionType
+AIParadropMission=      ; MissionType
+```
+
 ### Customizable target evaluation map zone check behaviour
 
 - By default, any non-AircraftType units seeking targets via ScriptType team mission (action) `0 Attack Target Type` or any [attack team missions introduced in Phobos](AI-Scripting-and-Mapping.md#attack-actions) check if the potential target is in same map zone as the attacking unit to be able to pick it as a target. This can now be customized to allow objects from any map zone with no constraints (`TargetZoneScanType=any`) or only if they are within weapon range (`TargetZoneScanType=inrange`).
