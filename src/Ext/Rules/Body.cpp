@@ -362,6 +362,8 @@ void RulesExt::ExtData::LoadBeforeTypeData(RulesClass* pThis, CCINIClass* pINI)
 	this->ParadropMission.Read(exINI, GameStrings::General, "ParadropMission");
 	this->AIParadropMission.Read(exINI, GameStrings::General, "AIParadropMission");
 
+	this->CylinderRangefinding.Read(exINI, GameStrings::General, "CylinderRangefinding");
+	
 	// Section AITargetTypes
 	int itemsCount = pINI->GetKeyCount("AITargetTypes");
 	for (int i = 0; i < itemsCount; ++i)
@@ -660,6 +662,7 @@ void RulesExt::ExtData::Serialize(T& Stm)
 		.Process(this->ParadropMission)
 		.Process(this->AIParadropMission)
 		.Process(this->DefaultToGuardArea)
+		.Process(this->CylinderRangefinding)
 		;
 }
 
