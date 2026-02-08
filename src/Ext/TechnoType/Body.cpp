@@ -938,6 +938,8 @@ void TechnoTypeExt::ExtData::LoadFromINIFile(CCINIClass* const pINI)
 	this->DeployFireWeapon.Read(exINI, pSection, "DeployFireWeapon");
 	this->TargetZoneScanType.Read(exINI, pSection, "TargetZoneScanType");
 
+	this->AreaGuardRange.Read(exINI, pSection, "AreaGuardRange");
+
 	// insignia type
 	Nullable<InsigniaTypeClass*> InsigniaType;
 	InsigniaType.Read(exINI, pSection, "InsigniaType");
@@ -1629,6 +1631,8 @@ void TechnoTypeExt::ExtData::Serialize(T& Stm)
 		.Process(this->Explodes_DuringBuildup)
 		.Process(this->DeployFireWeapon)
 		.Process(this->TargetZoneScanType)
+
+		.Process(this->AreaGuardRange)
 
 		.Process(this->Insignia)
 		.Process(this->InsigniaFrames)
