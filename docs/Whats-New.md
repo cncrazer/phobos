@@ -536,6 +536,7 @@ New:
 - Global default value for `DefaultToGuardArea` (by TaranDahl)
 - [Weapon range finding in cylinder](New-or-Enhanced-Logics.md#range-finding-in-cylinder) (by TaranDahl)
 - Penetrates damage on transporter (by NetsuNegi)
+- Added amount limit of `LimboKill` (by NetsuNegi)
 
 Vanilla fixes:
 - Fixed sidebar not updating queued unit numbers when adding or removing units when the production is on hold (by CrimRecya)
