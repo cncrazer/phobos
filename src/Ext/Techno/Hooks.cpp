@@ -1802,7 +1802,7 @@ DEFINE_HOOK(0x707E63, TechnoClass_GetGuardRange, 0x7)
 	enum { SkipGameCode = 0x707F4B };
 
 	GET(TechnoClass*, pThis, ESI);
-	GET(int, control, EDI);
+	GET_STACK(int, control, STACK_OFFSET(0xC, 0x4));
 
 	R->EAX(GetGuardRange(pThis, control));
 
