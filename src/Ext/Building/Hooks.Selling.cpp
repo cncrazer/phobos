@@ -3,24 +3,36 @@
 #include <Misc/FlyingStrings.h>
 #include <Ext/Rules/Body.h>
 
+// Check if unit is on a building before allowing sell
+DEFINE_HOOK(0x4C6F5A, FootClass_IsControllable_SellCheck, 0x6)
+{
+	enum { ContinueCheck = 0, AbortSell = 0x4C6F96 };
+	GET(FootClass*, pThis, ESI);
+
+	// If UnitsUnsellable is enabled, only allow selling units that are on buildings
+	if (RulesExt::Global()->UnitsUnsellable.Get())
+	{
+		// Only apply to vehicles (not buildings, not infantry)
+		if (auto pUnit = abstract_cast<UnitClass*>(pThis))
+		{
+			// Check if unit is on a building (e.g., service depot, repair bay)
+			auto pBuilding = pThis->GetCell()->GetBuilding();
+			if (!pBuilding)
+				return AbortSell; // Unit not on building, prevent sell
+		}
+	}
+
+	return ContinueCheck;
+}
+
 // SellSound and EVA dehardcode
 DEFINE_HOOK(0x4D9F7B, FootClass_Sell, 0x6)
 {
 	enum { ReadyToVanish = 0x4D9FCB };
 	GET(FootClass*, pThis, ESI);
 
-	// Check if this is a vehicletype
-	// If so, set refund to 0 (units being sold normally, not grinded)
+	// Get refund amount (units on buildings sell normally, units being ground give 0)
 	int money = pThis->GetRefund();
-
-	if (RulesExt::Global()->UnitsUnsellable.Get())
-	{
-		// Only apply to vehicles (not buildings, not infantry)
-		if (auto pUnit = abstract_cast<UnitClass*>(pThis))
-		{
-			money = 0;
-		}
-	}
 
 	const auto pOwner = pThis->Owner;
 	pOwner->GiveMoney(money);
