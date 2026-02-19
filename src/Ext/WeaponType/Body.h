@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <Utilities/Container.h>
 #include <Utilities/TemplateDef.h>
 
@@ -37,6 +37,8 @@ public:
 		Valueable<double> CanTarget_MaxHealth;
 		Valueable<double> CanTarget_MinHealth;
 		Valueable<AffectedVeterancy> CanTargetVeterancy;
+		Nullable<bool> CanTarget_IronCurtained;
+		Nullable<bool> AutoTarget_IronCurtained;
 		ValueableVector<int> Burst_Delays;
 		Valueable<bool> Burst_FireWithinSequence;
 		Valueable<bool> Burst_NoDelay;
@@ -96,6 +98,8 @@ public:
 
 		bool SkipWeaponPicking;
 
+		Nullable<bool> CylinderRangefinding;
+		
 		ExtData(WeaponTypeClass* OwnerObject) : Extension<WeaponTypeClass>(OwnerObject)
 			, DiskLaser_Radius { DiskLaserClass::Radius }
 			, ProjectileRange { Leptons(100000) }
@@ -117,6 +121,8 @@ public:
 			, CanTarget_MaxHealth { 1.0 }
 			, CanTarget_MinHealth { 0.0 }
 			, CanTargetVeterancy { AffectedVeterancy::All }
+			, CanTarget_IronCurtained {}
+			, AutoTarget_IronCurtained {}
 			, Burst_Delays {}
 			, Burst_FireWithinSequence { false }
 			, Burst_NoDelay { false }
@@ -174,6 +180,7 @@ public:
 			, AttackFriendlies {}
 			, AttackCursorOnFriendlies {}
 			, AttackNoThreatBuildings {}
+			, CylinderRangefinding {}
 		{ }
 
 		int GetBurstDelay(int burstIndex) const;

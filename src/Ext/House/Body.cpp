@@ -545,7 +545,7 @@ float HouseExt::ExtData::GetRestrictedFactoryPlantMult(TechnoTypeClass* pTechnoT
 	{
 		auto const pType = pBuilding->Type;
 		auto const pTypeExt = BuildingTypeExt::ExtMap.Find(pType);
-		int max = pTypeExt->FactoryPlant_MaxCount;
+		const int max = pTypeExt->FactoryPlant_MaxCount;
 
 		if (max > -1 && counts[pType->ArrayIndex] >= max)
 			continue;
@@ -650,6 +650,26 @@ void HouseExt::ExtData::SetForceEnemyIndex(int EnemyIndex)
 		this->ForceEnemyIndex = -1;
 	else
 		this->ForceEnemyIndex = EnemyIndex;
+}
+
+void HouseExt::CalculatePowerSurplus(HouseClass* pThis)
+{
+	auto const pRulesExt = RulesExt::Global();
+
+	if (!pRulesExt->EnablePowerSurplus)
+		return;
+
+	int scaleToDrainAmount = pRulesExt->PowerSurplus_ScaleToDrainAmount;
+
+	if (scaleToDrainAmount <= 0)
+	{
+		pThis->PowerSurplus = RulesClass::Instance->PowerSurplus;
+	}
+	else
+	{
+		double factor = pThis->PowerDrain / static_cast<double>(scaleToDrainAmount);
+		pThis->PowerSurplus = static_cast<int>(RulesClass::Instance->PowerSurplus * factor);
+	}
 }
 
 // =============================
@@ -759,9 +779,7 @@ DEFINE_HOOK(0x4F6532, HouseClass_CTOR, 0x5)
 	GET(HouseClass*, pItem, EAX);
 
 	HouseExt::ExtMap.TryAllocate(pItem);
-
-	if (RulesExt::Global()->EnablePowerSurplus)
-		pItem->PowerSurplus = RulesClass::Instance->PowerSurplus;
+	HouseExt::CalculatePowerSurplus(pItem);
 
 	return 0;
 }
