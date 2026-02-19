@@ -237,6 +237,33 @@ DEFINE_HOOK(0x702299, TechnoClass_ReceiveDamage_Debris, 0xA)
 // Author: Uranusian
 DEFINE_JUMP(LJMP, 0x4ABBD5, 0x4ABBD5 + 7); // DisplayClass_MouseLeftRelease_HotkeyFix
 
+// Fixes ambiguous sell-target selection when cursor overlap picks a non-building object first.
+// In Action::Sell path, force target to a building on clicked cell (if any) so SellUnit=false cannot
+// accidentally sell unit/aircraft via building-sell action.
+// Author: EJ, RAZER
+DEFINE_HOOK(0x4AC15A, DisplayClass_LeftMouseButtonUp_SellAction_RetargetBuilding, 0x4)
+{
+	enum { Continue = 0, SellCell = 0x4AC19A, SkipSellEvent = 0x4AC20C };
+
+	GET(ObjectClass*, pSellTarget, ESI);
+	const bool hadObjectTarget = (pSellTarget != nullptr);
+
+	if (pSellTarget && pSellTarget->WhatAmI() != AbstractType::Building)
+	{
+		GET_STACK(const CellStruct*, pClickedCell, 0x94);
+
+		pSellTarget = MapClass::Instance.GetCellAt(*pClickedCell)->GetBuilding();
+		R->ESI(pSellTarget);
+
+		// Ambiguous overlap case with object target but no building under clicked cell:
+		// do not emit Sell / SellCell events from this path.
+		if (!pSellTarget && hadObjectTarget)
+			return SkipSellEvent;
+	}
+
+	return pSellTarget ? Continue : SellCell;
+}
+
 DEFINE_HOOK(0x4FB2DE, HouseClass_PlaceObject_HotkeyFix, 0x6)
 {
 	GET(TechnoClass*, pObject, ESI);
@@ -2724,7 +2751,7 @@ DEFINE_HOOK(0x5218C2, InfantryClass_UnmarkAllOccupationBits_ResetOwnerIdx, 0x6)
 	const auto pExt = CellExt::ExtMap.Find(pCell);
 	pExt->InfantryCount--;
 
-	// Vanilla check only the flag to decide if the InfantryOwnerIndex should be reset. 
+	// Vanilla check only the flag to decide if the InfantryOwnerIndex should be reset.
 	// But the tree take one of the flag bit. So if a infantry walk through a cell with a tree, the InfantryOwnerIndex won't be reset.
 	return (newFlag & 0x1C) == 0 || pExt->InfantryCount == 0 ? Reset : NoReset;
 }
