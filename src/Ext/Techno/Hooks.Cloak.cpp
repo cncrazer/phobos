@@ -197,7 +197,7 @@ DEFINE_HOOK(0x6FCD1D, TechnoClass_CanFire_OpenTopCloakFix, 0x5)
 	GET_STACK(bool, checkIfTargetInRange, STACK_OFFSET(0x20, 0xC));
 
 	if (checkIfTargetInRange && pThis->InOpenToppedTransport && pThis->Transporter)
-		pThis->Transporter->Uncloak(true);
+		pThis->Transporter->Uncloak(false);
 
 	return 0;
 }
