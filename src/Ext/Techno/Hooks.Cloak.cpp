@@ -174,3 +174,30 @@ DEFINE_HOOK(0x4579A5, BuildingClass_ShouldNotCloak_Sensors, 0x6)
 
 	return Continue;
 }
+
+// NOTE: Overrides incorrect Ares hook at the same address.
+DEFINE_HOOK(0x6FCA26, TechnoClass_CanFire_RevertAresOpenTopCloakFix, 0x6)
+{
+	enum { Skip = 0x6FCA4F, Continue = 0x6FCA36, NotApplicable = 0x6FCA5E };
+
+	GET(WeaponTypeClass*, pWeapon, EBX);
+
+	if (!pWeapon->DecloakToFire)
+		return NotApplicable;
+
+	GET(TechnoClass*, pThis, ESI);
+
+	R->EAX(pThis->CloakState);
+	return Continue;
+}
+
+DEFINE_HOOK(0x6FCD1D, TechnoClass_CanFire_OpenTopCloakFix, 0x5)
+{
+	GET(TechnoClass*, pThis, ESI);
+	GET_STACK(bool, checkIfTargetInRange, STACK_OFFSET(0x20, 0xC));
+
+	if (checkIfTargetInRange && pThis->InOpenToppedTransport && pThis->Transporter)
+		pThis->Transporter->Uncloak(true);
+
+	return 0;
+}
