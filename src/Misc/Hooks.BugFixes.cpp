@@ -237,33 +237,6 @@ DEFINE_HOOK(0x702299, TechnoClass_ReceiveDamage_Debris, 0xA)
 // Author: Uranusian
 DEFINE_JUMP(LJMP, 0x4ABBD5, 0x4ABBD5 + 7); // DisplayClass_MouseLeftRelease_HotkeyFix
 
-// Fixes ambiguous sell-target selection when cursor overlap picks a non-building object first.
-// In Action::Sell path, force target to a building on clicked cell (if any) so SellUnit=false cannot
-// accidentally sell unit/aircraft via building-sell action.
-// Author: EJ, RAZER
-DEFINE_HOOK(0x4AC15A, DisplayClass_LeftMouseButtonUp_SellAction_RetargetBuilding, 0x4)
-{
-	enum { Continue = 0, SellCell = 0x4AC19A, SkipSellEvent = 0x4AC20C };
-
-	GET(ObjectClass*, pSellTarget, ESI);
-	const bool hadObjectTarget = (pSellTarget != nullptr);
-
-	if (pSellTarget && pSellTarget->WhatAmI() != AbstractType::Building)
-	{
-		GET_STACK(const CellStruct*, pClickedCell, 0x94);
-
-		pSellTarget = MapClass::Instance.GetCellAt(*pClickedCell)->GetBuilding();
-		R->ESI(pSellTarget);
-
-		// Ambiguous overlap case with object target but no building under clicked cell:
-		// do not emit Sell / SellCell events from this path.
-		if (!pSellTarget && hadObjectTarget)
-			return SkipSellEvent;
-	}
-
-	return pSellTarget ? Continue : SellCell;
-}
-
 DEFINE_HOOK(0x4FB2DE, HouseClass_PlaceObject_HotkeyFix, 0x6)
 {
 	GET(TechnoClass*, pObject, ESI);
@@ -2974,6 +2947,19 @@ DEFINE_HOOK(0x65DE82, TeamTypeClass_CreateTeamMembers_Veterancy, 0x6)
 	GET(TechnoTypeClass*, pTechnoType, EDI);
 
 	return pTechnoType->Trainable ? 0 : SkipVeterancy;
+}
+
+// Disallow sell action on wall overlays if mouse cursor is hovering on another object.
+DEFINE_HOOK(0x692AD6, ScrollClass_ChooseAction_SellWall, 0x6)
+{
+	enum { NoSell = 0x692AFE };
+
+	GET(ObjectClass*, pObject, ESI);
+
+	if (pObject)
+		return NoSell;
+
+	return 0;
 }
 
 // Fixed the issue where non-repairer units needed sensors to attack cloaked friendly units.
