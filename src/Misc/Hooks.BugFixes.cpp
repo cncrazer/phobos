@@ -1,4 +1,5 @@
 #include <AircraftTrackerClass.h>
+#include <EventClass.h>
 #include <JumpjetLocomotionClass.h>
 #include <TunnelLocomotionClass.h>
 
@@ -2958,6 +2959,19 @@ DEFINE_HOOK(0x692AD6, ScrollClass_ChooseAction_SellWall, 0x6)
 
 	if (pObject)
 		return NoSell;
+
+	return 0;
+}
+
+// Disallow sell action on wall overlays at event/network level if there's an object on the cell.
+DEFINE_HOOK(0x4C6FCE, HouseClass_SellOverlay_ObjectCheck, 0x5)
+{
+	enum { SkipSellOverlay = 0x4C6FD3 };
+
+	GET(EventClass*, pEvent, ESI);
+
+	if (MapClass::Instance.GetCellAt(pEvent->SellCell.Location)->GetContent())
+		return SkipSellOverlay;
 
 	return 0;
 }
