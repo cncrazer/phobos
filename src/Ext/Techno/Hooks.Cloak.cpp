@@ -193,25 +193,5 @@ DEFINE_HOOK(0x6FCA26, TechnoClass_CanFire_RevertAresOpenTopCloakFix, 0x6)
 
 DEFINE_HOOK(0x6FCD1D, TechnoClass_CanFire_OpenTopCloakFix, 0x5)
 {
-	GET(TechnoClass*, pThis, ESI);
-	GET_STACK(bool, checkIfTargetInRange, STACK_OFFSET(0x20, 0xC));
-	GET_STACK(const int, weaponIndex, STACK_OFFSET(0x20, 0x8));
-
-	// Only decloak the transporter when the passenger's weapon actually causes decloak.
-	if (checkIfTargetInRange && pThis->InOpenToppedTransport && pThis->Transporter)
-	{
-		if (weaponIndex >= 0)
-		{
-			if (auto const pWeaponStruct = pThis->GetWeapon(weaponIndex))
-			{
-				if (auto const pWeaponType = pWeaponStruct->WeaponType)
-				{
-					if (pWeaponType->DecloakToFire)
-						pThis->Transporter->Uncloak(true);
-				}
-			}
-		}
-	}
-
 	return 0;
 }
