@@ -748,3 +748,5 @@ This page lists all the individual contributions to the project by their author.
 - **Dmitry Volkov** - extensive and thorough testing
 - **Rise of the East community** - extensive playtesting of in-dev features
 - **11EJDE11** - Prevent mpdebug number from being drawn when visibility toggled off
+- **RAZER**:
+  - Revert Ares patch to allow passengers inside cloaked transports which are opentopped fire out
