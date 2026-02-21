@@ -643,6 +643,8 @@ Fixes / interactions with other extensions:
 - Fixed the issue that technos cannot spawn survivors due to non-probabilistic reasons when the tech type was destroyed (by NetsuNegi)
 - Fixed the bug that vehicle survivor can spawn on wrong position when transport has been destroyed (by NetsuNegi)
 - Fixed the bug that building with `Explodes=yes` use Ares's rubble logic will cause it's owner cannot defeat normally (by NetsuNegi)
+- Passengers in open-topped transports can no longer decloak the transporter when firing weapons with `DecloakToFire=yes`. The transporter will only decloak if it fires its own weapons.
+
 ```
 
 
