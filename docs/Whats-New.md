@@ -647,6 +647,16 @@ Fixes / interactions with other extensions:
 
 ```
 
+### 0.4.0.3
+
+```{dropdown} Click to show
+
+Vanilla fixes:
+- Vehicles overlapping `Wall=true` OverlayTypes no longer display sell cursor and cannot be sold (by CnCRAZER & Starkku)
+
+Phobos fixes:
+- Fixed vehicles disguised as trees incorrectly displaying veterancy insignia when they shouldn't (by Starkku)
+```
 
 ### 0.4.0.2
 
