@@ -1,4 +1,5 @@
 #include "Body.h"
+#include <Ext/Rules/Body.h>
 
 namespace CloakTemp
 {
@@ -180,12 +181,20 @@ DEFINE_HOOK(0x6FCA26, TechnoClass_CanFire_RevertAresOpenTopCloakFix, 0x6)
 {
 	enum { Skip = 0x6FCA4F, Continue = 0x6FCA36, NotApplicable = 0x6FCA5E };
 
+	GET(TechnoClass*, pThis, ESI);
+
+	auto const pTypeExt = TechnoTypeExt::ExtMap.Find(pThis->GetTechnoType());
+	const bool applyFix = pTypeExt->OpenTopped_DecloakToFire.isset()
+		? pTypeExt->OpenTopped_DecloakToFire.Get()
+		: RulesExt::Global()->OpenTopped_DecloakToFire;
+
+	if (!applyFix)
+		return 0;
+
 	GET(WeaponTypeClass*, pWeapon, EBX);
 
 	if (!pWeapon->DecloakToFire)
 		return NotApplicable;
-
-	GET(TechnoClass*, pThis, ESI);
 
 	R->EAX(pThis->CloakState);
 	return Continue;

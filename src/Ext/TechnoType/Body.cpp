@@ -858,6 +858,7 @@ void TechnoTypeExt::ExtData::LoadFromINIFile(CCINIClass* const pINI)
 	this->OpenTopped_ShareTransportTarget.Read(exINI, pSection, "OpenTopped.ShareTransportTarget");
 	this->OpenTopped_UseTransportRangeModifiers.Read(exINI, pSection, "OpenTopped.UseTransportRangeModifiers");
 	this->OpenTopped_CheckTransportDisableWeapons.Read(exINI, pSection, "OpenTopped.CheckTransportDisableWeapons");
+	this->OpenTopped_DecloakToFire.Read(exINI, pSection, "OpenTopped.DecloakToFire");
 	this->OpenTransport_RangeBonus.Read(exINI, pSection, "OpenTransport.RangeBonus");
 	this->OpenTransport_DamageMultiplier.Read(exINI, pSection, "OpenTransport.DamageMultiplier");
 
@@ -1561,6 +1562,7 @@ void TechnoTypeExt::ExtData::Serialize(T& Stm)
 		.Process(this->OpenTopped_ShareTransportTarget)
 		.Process(this->OpenTopped_UseTransportRangeModifiers)
 		.Process(this->OpenTopped_CheckTransportDisableWeapons)
+		.Process(this->OpenTopped_DecloakToFire)
 		.Process(this->OpenTransport_RangeBonus)
 		.Process(this->OpenTransport_DamageMultiplier)
 
