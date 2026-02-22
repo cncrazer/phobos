@@ -556,7 +556,7 @@ public:
 
 			, FallingDownTargetingFix { false }
 			, AIAirTargetingFix { false }
-			, OpenTopped_DecloakToFire { true }
+			, OpenTopped_DecloakToFire { false }
 
 			, SortCameoByName { false }
 
