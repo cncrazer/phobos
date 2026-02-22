@@ -417,6 +417,7 @@ void RulesExt::ExtData::LoadAfterTypeData(RulesClass* pThis, CCINIClass* pINI)
 {
 	INI_EX exINI(pINI);
 
+	this->OpenTopped_DecloakToFire.Read(exINI, GameStrings::General, "OpenTopped.DecloakToFire");
 }
 
 // this runs between the before and after type data loading methods for rules ini
