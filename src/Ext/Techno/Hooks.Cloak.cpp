@@ -202,5 +202,16 @@ DEFINE_HOOK(0x6FCA26, TechnoClass_CanFire_RevertAresOpenTopCloakFix, 0x6)
 
 DEFINE_HOOK(0x6FCD1D, TechnoClass_CanFire_OpenTopCloakFix, 0x5)
 {
+	GET(TechnoClass*, pThis, ESI);
+	GET_STACK(bool, checkIfTargetInRange, STACK_OFFSET(0x20, 0xC));
+
+	auto const pTypeExt = TechnoTypeExt::ExtMap.Find(pThis->GetTechnoType());
+	const bool applyFix = pTypeExt->OpenTopped_DecloakToFire.isset()
+		? pTypeExt->OpenTopped_DecloakToFire.Get()
+		: RulesExt::Global()->OpenTopped_DecloakToFire;
+
+	if (applyFix && checkIfTargetInRange && pThis->InOpenToppedTransport && pThis->Transporter)
+		pThis->Transporter->Uncloak(true);
+
 	return 0;
 }
