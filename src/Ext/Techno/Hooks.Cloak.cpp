@@ -190,7 +190,7 @@ DEFINE_HOOK(0x6FCA26, TechnoClass_CanFire_RevertAresOpenTopCloakFix, 0x6)
 
 	if (pThis->InOpenToppedTransport && pThis->Transporter)
 	{
-		auto const pTransporterTypeExt = TechnoTypeExt::ExtMap.Find(pThis->Transporter->Type);
+		auto const pTransporterTypeExt = TechnoTypeExt::ExtMap.Find(pThis->Transporter->GetTechnoType());
 		if (pTransporterTypeExt->OpenTopped_DecloakToFire.Get(RulesExt::Global()->OpenTopped_DecloakToFire))
 			return NotApplicable;
 	}
@@ -206,7 +206,7 @@ DEFINE_HOOK(0x6FCD1D, TechnoClass_CanFire_OpenTopCloakFix, 0x5)
 
 	if (checkIfTargetInRange && pThis->InOpenToppedTransport && pThis->Transporter)
 	{
-		auto const pTransporterTypeExt = TechnoTypeExt::ExtMap.Find(pThis->Transporter->Type);
+		auto const pTransporterTypeExt = TechnoTypeExt::ExtMap.Find(pThis->Transporter->GetTechnoType());
 		if (pTransporterTypeExt->OpenTopped_DecloakToFire.Get(RulesExt::Global()->OpenTopped_DecloakToFire))
 			pThis->Transporter->Uncloak(true);
 	}
