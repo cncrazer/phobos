@@ -1559,6 +1559,9 @@ DrainMoneyDisplay.OnTarget.UseDisplayIncome=        ; boolean
 - `OpenTopped.DecloakToFire` can customize if a transport has to uncloak to have passengers fireout if transport is also OpenTopped.
 
 ```ini
+[General]
+OpenTopped.DecloakToFire=true             ; boolean
+
 [SOMETECHNO]                              ; TechnoType, transport with OpenTopped=yes
 OpenTopped.RangeBonus=                    ; integer, default to [CombatDamage] -> OpenToppedRangeBonus
 OpenTopped.DamageMultiplier=              ; floating point value, default to [CombatDamage] -> OpenToppedDamageMultiplier
@@ -1566,7 +1569,7 @@ OpenTopped.WarpDistance=                  ; integer, default to [CombatDamage] -
 OpenTopped.IgnoreRangefinding=false       ; boolean
 OpenTopped.AllowFiringIfDeactivated=true  ; boolean
 OpenTopped.ShareTransportTarget=true      ; boolean
-OpenTopped.DecloakToFire=true             ; boolean, defaults to [General] -> OpenTopped.DecloakToFire=True
+OpenTopped.DecloakToFire=                 ; boolean, defaults to [General] -> OpenTopped.DecloakToFire
 
 [SOMETECHNO]                              ; TechnoType, passenger
 OpenTransport.RangeBonus=0                ; integer
