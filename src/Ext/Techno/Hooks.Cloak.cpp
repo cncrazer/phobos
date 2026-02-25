@@ -181,20 +181,19 @@ DEFINE_HOOK(0x6FCA26, TechnoClass_CanFire_RevertAresOpenTopCloakFix, 0x6)
 {
 	enum { Skip = 0x6FCA4F, Continue = 0x6FCA36, NotApplicable = 0x6FCA5E };
 
-	GET(TechnoClass*, pThis, ESI);
-
-	auto const pTypeExt = TechnoTypeExt::ExtMap.Find(pThis->GetTechnoType());
-	const bool applyFix = pTypeExt->OpenTopped_DecloakToFire.isset()
-		? pTypeExt->OpenTopped_DecloakToFire.Get()
-		: RulesExt::Global()->OpenTopped_DecloakToFire;
-
-	if (!applyFix)
-		return 0;
-
 	GET(WeaponTypeClass*, pWeapon, EBX);
 
 	if (!pWeapon->DecloakToFire)
 		return NotApplicable;
+
+	GET(TechnoClass*, pThis, ESI);
+
+	if (pThis->InOpenToppedTransport && pThis->Transporter)
+	{
+		auto const pTransporterTypeExt = TechnoTypeExt::ExtMap.Find(pThis->Transporter->Type);
+		if (pTransporterTypeExt->OpenTopped_DecloakToFire.Get(RulesExt::Global()->OpenTopped_DecloakToFire))
+			return NotApplicable;
+	}
 
 	R->EAX(pThis->CloakState);
 	return Continue;
@@ -202,5 +201,15 @@ DEFINE_HOOK(0x6FCA26, TechnoClass_CanFire_RevertAresOpenTopCloakFix, 0x6)
 
 DEFINE_HOOK(0x6FCD1D, TechnoClass_CanFire_OpenTopCloakFix, 0x5)
 {
+	GET(TechnoClass*, pThis, ESI);
+	GET_STACK(bool, checkIfTargetInRange, STACK_OFFSET(0x20, 0xC));
+
+	if (checkIfTargetInRange && pThis->InOpenToppedTransport && pThis->Transporter)
+	{
+		auto const pTransporterTypeExt = TechnoTypeExt::ExtMap.Find(pThis->Transporter->Type);
+		if (pTransporterTypeExt->OpenTopped_DecloakToFire.Get(RulesExt::Global()->OpenTopped_DecloakToFire))
+			pThis->Transporter->Uncloak(true);
+	}
+
 	return 0;
 }
