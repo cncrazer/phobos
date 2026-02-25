@@ -1556,6 +1556,7 @@ DrainMoneyDisplay.OnTarget.UseDisplayIncome=        ; boolean
 - `OpenTopped.AllowFiringIfDeactivated` can be used to customize whether or not passengers can fire out when the transport is deactivated (EMP, powered unit etc).
 - `OpenTopped.ShareTransportTarget` controls whether or not the current target of the transport itself is passed to the passengers as well.
 - You can also customize range bonus and damage multiplier for passenger inside the transport with `OpenTransport.RangeBonus/DamageMultiplier`, which works independently from transport's `OpenTopped.RangeBonus/DamageMultiplier`.
+- `OpenTopped.DecloakToFire` can customize if a transport has to uncloak to have passengers fireout if transport is also OpenTopped.
 
 ```ini
 [SOMETECHNO]                              ; TechnoType, transport with OpenTopped=yes
@@ -1565,6 +1566,7 @@ OpenTopped.WarpDistance=                  ; integer, default to [CombatDamage] -
 OpenTopped.IgnoreRangefinding=false       ; boolean
 OpenTopped.AllowFiringIfDeactivated=true  ; boolean
 OpenTopped.ShareTransportTarget=true      ; boolean
+OpenTopped.DecloakToFire=true             ; boolean, defaults to [General] -> OpenTopped.DecloakToFire=True
 
 [SOMETECHNO]                              ; TechnoType, passenger
 OpenTransport.RangeBonus=0                ; integer
