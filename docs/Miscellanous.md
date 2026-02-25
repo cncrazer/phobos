@@ -278,3 +278,37 @@ This feature should only be used if you use a spawner/outside client (i.e. CNCNe
 ```{warning}
 Due to technical incompatibilities, enabling this feature disables [Ares' Customizable Dropdown Colors](https://ares-developers.github.io/Ares-docs/ui-features/customizabledropdowncolors.html).
 ```
+
+### Vote to kick
+
+- In Internet multiplayer games, any player may initiate a vote to kick another player by typing a chat command.
+- Votes are transported through the existing synchronized chat channel and evaluated deterministically on all clients, so **all players must be running Phobos** for the feature to work.
+- A kicked player's game gracefully submits a resignation event, removing them cleanly from the session.
+
+**Chat commands** (type these in the in-game chat box):
+
+| Command | Effect |
+|---|---|
+| `/votekick <partial name>` | Start a vote against the player whose WOL handle contains the given text. If a vote is already active, this counts as `/vote yes` instead. |
+| `/vote yes` | Cast a yes vote on the active kick vote. |
+| `/vote no` | Explicitly abstain (informational; does not cancel the vote). |
+
+**Rules:**
+
+- **Majority threshold** — more than half of all active (non-defeated) human players, excluding the target, must vote yes. At least 2 votes are always required.
+- **Voting window** — 1 minute from when the vote was initiated. Votes that do not reach majority within this time expire automatically.
+- **Cooldown** — after a vote concludes (whether the kick succeeded or expired), a 5-minute wall-clock cooldown prevents any new vote from being started.
+- A player cannot initiate or vote on their own kick.
+- Duplicate yes-votes from the same player are silently ignored.
+
+**Example session with 4 human players:**
+
+```
+Player1: /votekick tank
+[Vote] Player1 voted to kick TankGuy (1/2 votes needed).
+
+Player2: /vote yes
+[Vote] Player2 voted to kick TankGuy (2/2 votes needed).
+[Vote] Majority reached!  TankGuy has been kicked.
+```
+

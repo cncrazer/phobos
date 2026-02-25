@@ -1,4 +1,5 @@
 #include "MessageColumn.h"
+#include "VoteKick.h"
 
 #include <BitFont.h>
 #include <WWMouseClass.h>
@@ -1077,6 +1078,8 @@ DEFINE_HOOK(0x55DDA0, MainLoop_FrameStep_NewMessageListManage, 0x5)
 
 	if (!MessageColumnClass::Instance.IsExpanded() && (!MessageColumnClass::Instance.IsHovering() || !Phobos::Config::MessageApplyHoverState))
 		MessageColumnClass::Instance.Manage();
+
+	VoteKickClass::Instance.Update();
 
 	return SkipGameCode;
 }
