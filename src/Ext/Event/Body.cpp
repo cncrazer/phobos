@@ -877,7 +877,7 @@ void RecordFrameState(int eventsThisFrame)
 
 	FrameStateRecord frameState;
 	frameState.FrameNumber = static_cast<uint32_t>(Unsorted::CurrentFrame);
-	
+
 	// Record tactical position (viewport coords)
 	if (TacticalClass::Instance)
 	{
@@ -892,7 +892,7 @@ void RecordFrameState(int eventsThisFrame)
 	// TODO: selecting objects makes the game crawl, I'm doing something wrong
 	auto& currentObjects = ObjectClass::CurrentObjects;
 	frameState.SelectedObjectCount = currentObjects.Count;
-	
+
 	// Calculate CRC/sum of selected objects (RA1 CONQUER.CPP lines 5125-5130)
 	uint32_t sum = 0;
 	for (int i = 0; i < currentObjects.Count; i++)
@@ -984,7 +984,7 @@ void RestoreFrameState()
 	// It works well and fixes the Mega Mission divergence. But something still wrong with keyboard shortcuts (grouping units/Using T) (maybe - double check)
 	if (ScenarioClass::Instance)
 	{
-		
+
 		if (PlaybackLogFile && PlaybackLogFile != INVALID_HANDLE_VALUE)
 		{
 			if (ScenarioClass::Instance->UniqueID != frameState.UniqueIDCounter)
@@ -1038,7 +1038,7 @@ void RestoreFrameState()
 			return;
 		}
 	}
-	
+
 	// Calculate CRC of current selection
 	uint32_t currentCRC = 0;
 	for (int i = 0; i < currentObjects.Count; i++)
@@ -1104,7 +1104,7 @@ void RestoreFrameState()
 			}
 		}
 	}
-	
+
 	delete[] selectedIDs;
 
 	// Log frame state
@@ -1515,7 +1515,29 @@ void EventExt::RespondEvent()
 	case EventTypeExt::Sample:
 		// Place the handler here
 		break;
+
+	case EventTypeExt::ApproachObject:
+		this->RespondApproachObject();
+		break;
 	}
+}
+
+void EventExt::RespondApproachObject()
+{
+	const auto pSource = this->ApproachObject.Whom.As_Foot();
+
+	if (!pSource || static_cast<char>(pSource->Owner->ArrayIndex) != this->HouseIndex)
+		return;
+
+	const auto pObject = this->ApproachObject.Target.As_Object();
+
+	if (!pObject)
+		return;
+
+	const auto pOriginalTarget = pSource->Target;
+	pSource->Target = pObject;
+	pSource->vt_entry_53C(0);
+	pSource->Target = pOriginalTarget;
 }
 
 size_t EventExt::GetDataSize(EventTypeExt type)
@@ -1524,6 +1546,9 @@ size_t EventExt::GetDataSize(EventTypeExt type)
 	{
 	case EventTypeExt::Sample:
 		return sizeof(EventExt::Sample);
+
+	case EventTypeExt::ApproachObject:
+		return sizeof(EventExt::ApproachObject);
 	}
 
 	return 0;
@@ -1702,10 +1727,10 @@ DEFINE_HOOK(0x55AFB3, LogicClass_Update_ReplayInjectEvents, 0x6) //yay
 				eventsThisFrame++;
 			}
 		}
-		
+
 		// Record per-frame state first (like RA1's Do_Record_Playback)
 		RecordFrameState(eventsThisFrame);
-		
+
 		// Then record all events for this frame
 		for (int i = 0; i < doListCount; i++)
 		{
@@ -1729,11 +1754,11 @@ DEFINE_HOOK(0x55AFB3, LogicClass_Update_ReplayInjectEvents, 0x6) //yay
 	{
 		// Read per-frame state first (like RA1's Do_Record_Playback)
 		RestoreFrameState();
-		
+
 		// Then read and inject events for this frame
 		PlaybackFrameEvents();
 	}
-		
+
 	// Logging every 100 frames during playback
 	if (PlaybackLogFile && PlaybackLogFile != INVALID_HANDLE_VALUE &&
 		Unsorted::CurrentFrame % 100 == 0)

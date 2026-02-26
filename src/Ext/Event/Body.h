@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 #include <GeneralStructures.h>
+#include <TargetClass.h>
 
 // Replay file header structure
 #pragma pack(push, 1)
@@ -65,9 +66,10 @@ enum class EventTypeExt : uint8_t
 	// Ares used Events 0x60 and 0x61
 
 	Sample = 0x40, // Sample event, remove it when Phobos needs its own events
+	ApproachObject = 0x41, // Phobos: issued when player clicks Approach Object
 
 	FIRST = Sample,
-	LAST = Sample
+	LAST = ApproachObject
 };
 
 #pragma pack(push, 1)
@@ -86,10 +88,18 @@ public:
 		{
 			char DataBuffer[104];
 		} Sample;
+
+		struct
+		{
+			TargetClass Whom;
+			TargetClass Target;
+		} ApproachObject;
 	};
 
 	bool AddEvent();
 	void RespondEvent();
+
+	void RespondApproachObject();
 
 	static size_t GetDataSize(EventTypeExt type);
 	static bool IsValidType(EventTypeExt type);
