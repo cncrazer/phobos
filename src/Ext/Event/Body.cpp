@@ -16,6 +16,7 @@
 #include <TacticalClass.h>
 #include <MapClass.h>
 #include <ObjectClass.h>
+#include <SessionClass.h>
 #include <Phobos.version.h>
 
 // FLOW:
@@ -78,6 +79,7 @@
 
 static bool ReplayRecording = false;
 static bool ReplayPlayback = false;
+static bool g_ReplaySetObserverMode = false; // true if we put the game into observer mode for this replay
 
 static HANDLE ReplayFile = nullptr;
 static HANDLE PrettyReplayFile = nullptr;
@@ -102,9 +104,11 @@ struct PlaybackSettings
 	bool lockedViewport;
 	bool selectUnits;
 	bool debugLog;
+	bool observerMode;  // Makes the replay viewer a spectator/observer (sees all, free camera by default)
 };
 
-static PlaybackSettings g_PlaybackSettings = { false, true, true, false }; // defaults
+// Defaults: no shroud, free camera, restore unit selection, no debug log, observer mode on
+static PlaybackSettings g_PlaybackSettings = { false, false, true, false, true };
 
 void WriteToPlaybackLog(const char* text);
 
@@ -173,16 +177,24 @@ bool ReadReplayHeader(const char* replayFilePath, ReplayHeader& outHeader, bool 
 }
 
 // Load playback settings from spawn.ini
+// Supported keys under [Settings]:
+//   ReplayObserverMode     (bool, default true)  - Put the viewer in observer/spectator mode:
+//                                                   HouseClass::Observer = CurrentPlayer,
+//                                                   ObserverMode = true, reveals full map.
+//   ReplayShroudEnabled    (bool, default false) - Keep fog-of-war during playback.
+//   ReplayLockedViewport   (bool, default false) - Lock camera to the recorded player's viewport.
+//   ReplaySelectUnits      (bool, default true)  - Restore the recorded player's unit selection each frame.
+//   ReplayDebugLog         (bool, default false) - Write verbose per-frame log to playbackLog.dat.
 void LoadPlaybackSettings()
 {
-	// Todo: do we load these here?
 	CCINIClass* pINI = CCINIClass::LoadINIFile("spawn.ini");
 	if (pINI)
 	{
-		g_PlaybackSettings.shroudEnabled = pINI->ReadBool("Settings", "ReplayShroudEnabled", false);
-		g_PlaybackSettings.lockedViewport = pINI->ReadBool("Settings", "ReplayLockedViewport", true);
-		g_PlaybackSettings.selectUnits = pINI->ReadBool("Settings", "ReplaySelectUnits", true);
-		g_PlaybackSettings.debugLog = pINI->ReadBool("Settings", "ReplayDebugLog", false);
+		g_PlaybackSettings.observerMode   = pINI->ReadBool("Settings", "ReplayObserverMode",   true);
+		g_PlaybackSettings.shroudEnabled  = pINI->ReadBool("Settings", "ReplayShroudEnabled",  false);
+		g_PlaybackSettings.lockedViewport = pINI->ReadBool("Settings", "ReplayLockedViewport", false);
+		g_PlaybackSettings.selectUnits    = pINI->ReadBool("Settings", "ReplaySelectUnits",    true);
+		g_PlaybackSettings.debugLog       = pINI->ReadBool("Settings", "ReplayDebugLog",       false);
 		CCINIClass::UnloadINIFile(pINI);
 	}
 }
@@ -841,6 +853,15 @@ void StopReplaySystem()
 
 	CloseFileWithFooter(PrettyReplayFile, WriteToPrettyFile, "REPLAY RECORDING ENDED");
 	CloseFileWithFooter(PlaybackLogFile, WriteToPlaybackLog, "REPLAY PLAYBACK ENDED");
+
+	// Clean up observer state we set for this replay so it doesn't bleed into the next game
+	// (e.g. if the player returns to menu and starts a new match without restarting the process).
+	if (g_ReplaySetObserverMode)
+	{
+		Game::ObserverMode = false;
+		SessionClass::Instance.MultiplayerObserver = FALSE;
+		g_ReplaySetObserverMode = false;
+	}
 }
 
 // TODO:
@@ -1795,10 +1816,21 @@ DEFINE_HOOK(0x685659, ScenarioClass_Start_ReplayInit, 0x5)
 	{
 		StartReplayPlayback();
 
-		// Remove shroud
-		if (!g_PlaybackSettings.shroudEnabled)
+		// Apply observer/spectator mode so the viewer can see the full battlefield
+		if (g_PlaybackSettings.observerMode && HouseClass::CurrentPlayer)
 		{
-			// TODO: This just seems to deploy the MCV automatically.
+			// Make CurrentPlayer the observer house — this causes IsCurrentPlayerObserver()
+			// to return true, enabling all observer-specific UI and logic paths.
+			// Note: Game::ObserverMode was already set to true in InitRandom_CheckReplayMode
+			// (Hooks.Random.cpp) so the loading screen patches already saw it.
+			HouseClass::CurrentPlayer->MakeObserver();
+			SessionClass::Instance.MultiplayerObserver = TRUE;
+			g_ReplaySetObserverMode = true;
+		}
+
+		// Remove shroud when observer mode is on or shroudEnabled is false
+		if (!g_PlaybackSettings.shroudEnabled || g_PlaybackSettings.observerMode)
+		{
 			for (int i = 0; i < HouseClass::Array.Count; i++)
 			{
 				HouseClass* pHouse = HouseClass::Array.GetItemOrDefault(i);
