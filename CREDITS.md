@@ -751,5 +751,5 @@ This page lists all the individual contributions to the project by their author.
 - **11EJDE11** - Prevent mpdebug number from being drawn when visibility toggled off
 - **RAZER**:
   - Wall overlay unit sell exploit fix
-  - Revert Ares patch to allow OpenTopped transport customization.
+  - Revert Ares patch to allow OpenTopped transport customization
 
