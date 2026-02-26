@@ -32,8 +32,6 @@
 
 // Track if we've already handled Init_Random to only restore/save on first call
 static bool g_InitRandomHandled = false;
-// Track if we've already saved the recording state header
-static bool g_RecordingStateSaved = false;
 
 // Hook before the recording flag check in Init_Random
 // Address 0x52FC42: test byte ptr [RecordingFlag],0x2
@@ -56,22 +54,6 @@ DEFINE_HOOK(0x52FC42, InitRandom_CheckReplayMode, 0x7)
 	if (isReplayMode)
 	{
 		Debug::Log("[InitRandom] PLAYBACK mode - loading from: %s\n", replayFilePath);
-
-		// Set ObserverMode early so the loading screen patches (spectators.asm) see it.
-		// We read the setting directly from spawn.ini here because LoadPlaybackSettings()
-		// hasn't been called yet. MakeObserver() / HouseClass::Observer are set later at
-		// ScenarioClass_Start because CurrentPlayer isn't populated yet at this point.
-		{
-			CCINIClass* pINI = CCINIClass::LoadINIFile("spawn.ini");
-			const bool observerMode = pINI
-				? pINI->ReadBool("Settings", "ReplayObserverMode", true)
-				: true;
-			if (pINI)
-				CCINIClass::UnloadINIFile(pINI);
-
-			if (observerMode)
-				Game::ObserverMode = true;
-		}
 
 		ReplayHeader header;
 		if (!ReadReplayHeader(replayFilePath, header, true))
@@ -115,7 +97,7 @@ DEFINE_HOOK(0x52FC42, InitRandom_CheckReplayMode, 0x7)
 		}
 
 		// Jump to part that prints "Seed is XYXYXYY" and returns
-		// (skip all the sys time init)
+		// (skip all the sys time init) 
 		R->EAX(Game::Seed);
 		return 0x52FDF9;  // Jump before "Seed = EAX" assignment
 	}
@@ -130,7 +112,8 @@ DEFINE_HOOK(0x52FC42, InitRandom_CheckReplayMode, 0x7)
 DEFINE_HOOK(0x52FE43, InitRandom_AfterInit_SaveState, 0x5)
 {
 	// Only save on the first Init_Random call
-	if (g_RecordingStateSaved)
+	static bool savedOnce = false;
+	if (savedOnce)
 	{
 		Debug::Log("[InitRandom_AfterInit] Already saved, skipping\n");
 		return 0;
@@ -144,7 +127,7 @@ DEFINE_HOOK(0x52FE43, InitRandom_AfterInit_SaveState, 0x5)
 
 	if (!isReplayMode && ScenarioClass::Instance)
 	{
-		g_RecordingStateSaved = true;
+		savedOnce = true;
 		Debug::Log("[InitRandom] RECORDING - Random state after first Init_Random:\n");
 		Debug::Log("[InitRandom]   Seed=%08X, Next1=%d, Next2=%d, UniqueID=%d\n",
 			Game::Seed,
@@ -258,14 +241,5 @@ DEFINE_HOOK(0x52FE43, InitRandom_AfterInit_SaveState, 0x5)
 	}
 
 	Debug::Log("[InitRandom_AfterInit] Returning from hook\n");
-	return 0;
-}
-
-// Reset per-game statics so that returning to the main menu and starting a new game
-// works correctly without needing to restart the process.
-DEFINE_HOOK(0x685800, InitRandom_ScenarioEnd_Reset, 0x5)
-{
-	g_InitRandomHandled = false;
-	g_RecordingStateSaved = false;
 	return 0;
 }
