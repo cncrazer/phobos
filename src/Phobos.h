@@ -113,6 +113,9 @@ public:
 		static bool ShowFlashOnSelecting;
 		static bool UnitPowerDrain;
 		static int SuperWeaponSidebar_RequiredSignificance;
+		static int LagDetection_BaseThreshold;
+		static int LagDetection_ReducedMaxAhead;
+		static int LagDetection_ResetInterval;
 	};
 
 	class Misc
