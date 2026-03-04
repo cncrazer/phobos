@@ -639,6 +639,7 @@ Phobos fixes:
 - Fixed the issue that `PassengerDeletion` dont consider passenger's passenger, parasite and hijacker (by NetsuNegi)
 - Fixed the issue that power output of building on tooltip won't consider power enhancer (by NetsuNegi)
 - `RealTimeTimers` now support independent gamespeed index values for Multiplayer and Skirmish (by RAZER)
+- Fixed the bug that the upgrade building's power-enhancing effect depends only on its parent building and is not related to the upgrade building itself (by NetsuNegi)
 
 Fixes / interactions with other extensions:
 <!--  - Allowed `AuxBuilding` and Ares' `SW.Aux/NegBuildings` to count building upgrades (by Ollerus)  -->
