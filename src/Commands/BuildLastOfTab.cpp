@@ -8,26 +8,26 @@
 
 static constexpr const char* BuildLastTabNames[4] =
 {
-	"BuildLastOfTab_Power",
-	"BuildLastOfTab_Defense",
-	"BuildLastOfTab_Infantry",
-	"BuildLastOfTab_Vehicles",
+	"RebuildStructure",
+	"RebuildDefense",
+	"RebuildInfantry",
+	"RebuildVehicle",
 };
 
 static constexpr const char* BuildLastTabDescKeys[4] =
 {
-	"BuildLastOfTab_Power_Desc",
-	"BuildLastOfTab_Defense_Desc",
-	"BuildLastOfTab_Infantry_Desc",
-	"BuildLastOfTab_Vehicles_Desc",
+	"RebuildStructure_Desc",
+	"RebuildDefense_Desc",
+	"RebuildInfantry_Desc",
+	"RebuildVehicle_Desc",
 };
 
 static constexpr const wchar_t* BuildLastTabUINames[4] =
 {
-	L"Build Last (Power/Resources)",
-	L"Build Last (Defense/Combat)",
-	L"Build Last (Infantry)",
-	L"Build Last (Vehicles/Aircraft)",
+	L"Rebuild Structure",
+	L"Rebuild Defense",
+	L"Rebuild Infantry",
+	L"Rebuild Vehicle",
 };
 
 static constexpr const wchar_t* BuildLastTabUIDescs[4] =
