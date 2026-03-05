@@ -9,6 +9,7 @@
 #include <New/Type/BannerTypeClass.h>
 #include <New/Type/InsigniaTypeClass.h>
 #include <New/Type/SelectBoxTypeClass.h>
+#include <SuperWeaponTypeClass.h>
 
 std::unique_ptr<RulesExt::ExtData> RulesExt::Data = nullptr;
 
@@ -27,6 +28,58 @@ void RulesExt::LoadFromINIFile(RulesClass* pThis, CCINIClass* pINI)
 	Data->LoadFromINI(pINI);
 }
 
+// Ares' SW_ParaDrop::Initialize copies AmerParaDropInf/Num from RulesClass into
+// the SW extension during rules loading. When a map overrides these in [General],
+// the RulesClass fields are updated but the SW extension is not refreshed.
+// We inject the updated values as ParaDrop.Types/Num into the SW's INI section
+// so that Ares' SW_ParaDrop::LoadFromINI picks them up during type data loading.
+static void FixAresParaDropLists(RulesClass* pRules, CCINIClass* pINI)
+{
+	if (pINI == CCINIClass::INI_Rules)
+		return;
+
+	bool hasInf = pINI->Exists(GameStrings::General, "AmerParaDropInf");
+	bool hasNum = pINI->Exists(GameStrings::General, "AmerParaDropNum");
+
+	if (!hasInf && !hasNum)
+		return;
+
+	std::string types;
+
+	for (int i = 0; i < pRules->AmerParaDropInf.Count; i++)
+	{
+		if (i > 0)
+			types += ',';
+
+		if (auto pInf = pRules->AmerParaDropInf[i])
+			types += pInf->get_ID();
+	}
+
+	std::string nums;
+
+	for (int i = 0; i < pRules->AmerParaDropNum.Count; i++)
+	{
+		if (i > 0)
+			nums += ',';
+
+		nums += std::to_string(pRules->AmerParaDropNum[i]);
+	}
+
+	for (auto pSW : SuperWeaponTypeClass::Array)
+	{
+		if (pSW->Type != SuperWeaponType::AmerParaDrop)
+			continue;
+
+		const char* pSection = pSW->get_ID();
+
+		if (pINI->Exists(pSection, "ParaDrop.Types"))
+			continue;
+
+		pINI->WriteString(pSection, "ParaDrop.Types", types.c_str());
+		pINI->WriteString(pSection, "ParaDrop.Num", nums.c_str());
+	}
+}
+
 void RulesExt::LoadBeforeTypeData(RulesClass* pThis, CCINIClass* pINI)
 {
 	DigitalDisplayTypeClass::LoadFromINIList(pINI);
@@ -37,6 +90,8 @@ void RulesExt::LoadBeforeTypeData(RulesClass* pThis, CCINIClass* pINI)
 	AttachEffectTypeClass::LoadFromINIList(pINI);
 	BannerTypeClass::LoadFromINIList(pINI);
 	InsigniaTypeClass::LoadFromINIList(pINI);
+
+	FixAresParaDropLists(pThis, pINI);
 
 	Data->LoadBeforeTypeData(pThis, pINI);
 }
