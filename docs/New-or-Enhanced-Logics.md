@@ -2228,6 +2228,16 @@ Ammo.DeployUnlockMinimumAmount=-1  ; integer
 Ammo.DeployUnlockMaximumAmount=-1  ; integer
 ```
 
+### Custom hover vehicles shutdown drowning death
+
+- `HoverDrownable` allows customization of whether hover vehicles will drown and die when deactivated on water zone.
+
+In `rulesmd.ini`:
+```ini
+[SOMEVEHICLE]           ; VehicleType
+HoverDrownable=true     ; boolean
+```
+
 ### Damaged unit image changes
 
 - When a unit is damaged (health points percentage is lower than `[AudioVisual] -> ConditionYellow` percentage), it now may use different image set by `Image.ConditionYellow` VehicleType.
