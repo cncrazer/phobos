@@ -490,6 +490,8 @@ public:
 
 		Nullable<bool> Unsellable; // Ares 3.0
 
+		SHPStruct* TurretShape;
+
 		ExtData(TechnoTypeClass* OwnerObject) : Extension<TechnoTypeClass>(OwnerObject)
 			, HealthBar_Hide { false }
 			, HealthBar_HidePips { false }
@@ -933,6 +935,8 @@ public:
 			, HoverDrownable { true }
 
 			, Unsellable {}
+
+			, TurretShape { nullptr }
 		{ }
 
 		virtual ~ExtData() = default;

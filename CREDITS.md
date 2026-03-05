@@ -416,6 +416,7 @@ This page lists all the individual contributions to the project by their author.
   - Fixed the bug in AI scripts 56 and 57 that forced the launch of superweapons with index numbers 3 and 4
   - Fixed an issue where parachute units would die upon landing if bridges were destroyed during their descent
   - Custom hover vehicles shutdown drowning death
+  - SHP turret vehicles support the use of `*tur.shp` files
 - **NetsuNegi**:
   - Forbidding parallel AI queues by type
   - Jumpjet crash speed fix when crashing onto building

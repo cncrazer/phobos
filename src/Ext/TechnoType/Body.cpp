@@ -1882,6 +1882,8 @@ void TechnoTypeExt::ExtData::Serialize(T& Stm)
 		.Process(this->HoverDrownable)
 
 		.Process(this->Unsellable)
+
+		.Process(this->TurretShape)
 		;
 }
 void TechnoTypeExt::ExtData::LoadFromStream(PhobosStreamReader& Stm)
