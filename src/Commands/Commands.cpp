@@ -12,6 +12,7 @@
 #include "ToggleSWSidebar.h"
 #include "FireTacticalSW.h"
 #include "ToggleMessageList.h"
+#include "BuildLastOfTab.h"
 
 #include <CCINIClass.h>
 
@@ -28,6 +29,10 @@ DEFINE_HOOK(0x533066, CommandClassCallback_Register, 0x6)
 	MakeCommand<ToggleDesignatorRangeCommandClass>();
 	MakeCommand<ToggleMessageListCommandClass>();
 	MakeCommand<ToggleSWSidebar>();
+	MakeCommand<BuildLastOfTabCommandClass<0>>();
+	MakeCommand<BuildLastOfTabCommandClass<1>>();
+	MakeCommand<BuildLastOfTabCommandClass<2>>();
+	MakeCommand<BuildLastOfTabCommandClass<3>>();
 
 	if (Phobos::Config::SuperWeaponSidebarCommands)
 	{
