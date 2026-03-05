@@ -4,6 +4,7 @@
 #include <Ext/House/Body.h>
 #include <HouseClass.h>
 #include <EventClass.h>
+#include <SidebarClass.h>
 
 static constexpr const char* BuildLastTabNames[4] =
 {
@@ -76,6 +77,13 @@ void BuildLastOfTabCommandClass<TabIndex>::Execute(WWKey eInput) const
 	auto const typeIndex = pExt->LastBuiltPerTab[TabIndex];
 	if (typeIndex < 0)
 		return;
+
+	// Focus the sidebar to the corresponding tab.
+	if (SidebarClass::Instance.IsSidebarActive)
+	{
+		SidebarClass::Instance.ActiveTabIndex = TabIndex;
+		SidebarClass::Instance.SidebarNeedsRepaint();
+	}
 
 	auto const rtti = pExt->LastBuiltRTTIPerTab[TabIndex];
 	auto const isNaval = pExt->LastBuiltIsNavalPerTab[TabIndex];
