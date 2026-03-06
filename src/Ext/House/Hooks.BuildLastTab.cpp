@@ -36,6 +36,26 @@ DEFINE_HOOK(0x4FB6C2, HouseClass_RegisterObjectGain_TrackLastBuiltTab, 0x7)
 		pExt->LastBuiltPerTab[tabIdx] = pType->GetArrayIndex();
 		pExt->LastBuiltRTTIPerTab[tabIdx] = absType;
 		pExt->LastBuiltIsNavalPerTab[tabIdx] = isNaval;
+
+		// Track per-subtype within tab 3 for dedicated rebuild commands.
+		if (tabIdx == 3)
+		{
+			if (absType == AbstractType::AircraftType)
+			{
+				pExt->LastBuiltAircraftTypeIndex = pType->GetArrayIndex();
+				pExt->LastBuiltAircraftRTTI = absType;
+			}
+			else if (isNaval)
+			{
+				pExt->LastBuiltNavalTypeIndex = pType->GetArrayIndex();
+				pExt->LastBuiltNavalRTTI = absType;
+			}
+			else
+			{
+				pExt->LastBuiltVehicleTypeIndex = pType->GetArrayIndex();
+				pExt->LastBuiltVehicleRTTI = absType;
+			}
+		}
 	}
 
 	return 0;
