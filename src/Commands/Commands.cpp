@@ -33,7 +33,6 @@ DEFINE_HOOK(0x533066, CommandClassCallback_Register, 0x6)
 	MakeCommand<BuildLastOfTabCommandClass<0>>();
 	MakeCommand<BuildLastOfTabCommandClass<1>>();
 	MakeCommand<BuildLastOfTabCommandClass<2>>();
-	MakeCommand<BuildLastOfTabCommandClass<3>>();
 	MakeCommand<RebuildVehicleCommandClass>();
 	MakeCommand<RebuildAircraftCommandClass>();
 	MakeCommand<RebuildNavalCommandClass>();

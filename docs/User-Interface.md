@@ -528,10 +528,16 @@ For this command to work in multiplayer - you need to use a version of [YRpp spa
 - Re-queue the last produced Defensive Building you placed.
 
 ### `[ ]` Rebuild Infantry
-- Re-queue the last produced Infantry you built.
+- Re-queue the last produced Infantry Unit you built.
 
 ### `[ ]` Rebuild Vehicle
-- Re-queue the last produced Vehicle you built.
+- Re-queue the last produced Vehicle Unit you built.
+
+### `[ ]` Rebuild Aircraft
+- Re-queue the last produced Aircraft Unit you built.
+
+### `[ ]` Rebuild Naval
+- Re-queue the last produced Naval Unit you built.
 
 ## Loading screen
 

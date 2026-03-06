@@ -6,36 +6,32 @@
 #include <EventClass.h>
 #include <SidebarClass.h>
 
-static constexpr const char* BuildLastTabNames[4] =
+static constexpr const char* BuildLastTabNames[3] =
 {
 	"RebuildStructure",
 	"RebuildDefense",
 	"RebuildInfantry",
-	"RebuildVehicle",
 };
 
-static constexpr const char* BuildLastTabDescKeys[4] =
+static constexpr const char* BuildLastTabDescKeys[3] =
 {
 	"RebuildStructure_Desc",
 	"RebuildDefense_Desc",
 	"RebuildInfantry_Desc",
-	"RebuildVehicle_Desc",
 };
 
-static constexpr const wchar_t* BuildLastTabUINames[4] =
+static constexpr const wchar_t* BuildLastTabUINames[3] =
 {
 	L"Rebuild Structure",
 	L"Rebuild Defense",
 	L"Rebuild Infantry",
-	L"Rebuild Vehicle",
 };
 
-static constexpr const wchar_t* BuildLastTabUIDescs[4] =
+static constexpr const wchar_t* BuildLastTabUIDescs[3] =
 {
 	L"Re-queue the last produced Power/Resources building.",
 	L"Re-queue the last produced Defense/Combat building.",
 	L"Re-queue the last produced Infantry unit.",
-	L"Re-queue the last produced Vehicle or Aircraft.",
 };
 
 template<int TabIndex>
@@ -59,7 +55,7 @@ const wchar_t* BuildLastOfTabCommandClass<TabIndex>::GetUICategory() const
 template<int TabIndex>
 const wchar_t* BuildLastOfTabCommandClass<TabIndex>::GetUIDescription() const
 {
-	static_assert(TabIndex >= 0 && TabIndex < 4, "TabIndex out of range");
+	static_assert(TabIndex >= 0 && TabIndex < 3, "TabIndex out of range");
 	return GeneralUtils::LoadStringUnlessMissing(BuildLastTabDescKeys[TabIndex], BuildLastTabUIDescs[TabIndex]);
 }
 
@@ -101,4 +97,3 @@ void BuildLastOfTabCommandClass<TabIndex>::Execute(WWKey eInput) const
 template class BuildLastOfTabCommandClass<0>;
 template class BuildLastOfTabCommandClass<1>;
 template class BuildLastOfTabCommandClass<2>;
-template class BuildLastOfTabCommandClass<3>;
