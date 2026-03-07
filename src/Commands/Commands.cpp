@@ -10,6 +10,8 @@
 #include "ToggleDigitalDisplay.h"
 #include "ToggleDesignatorRange.h"
 #include "SaveVariablesToFile.h"
+#include "BuildLastOfTab.h"
+#include "RebuildTab3Subtypes.h"
 
 DEFINE_HOOK(0x533066, CommandClassCallback_Register, 0x6)
 {
@@ -19,6 +21,12 @@ DEFINE_HOOK(0x533066, CommandClassCallback_Register, 0x6)
 	MakeCommand<QuickSaveCommandClass>();
 	MakeCommand<ToggleDigitalDisplayCommandClass>();
 	MakeCommand<ToggleDesignatorRangeCommandClass>();
+	MakeCommand<BuildLastOfTabCommandClass<0>>();
+	MakeCommand<BuildLastOfTabCommandClass<1>>();
+	MakeCommand<BuildLastOfTabCommandClass<2>>();
+	MakeCommand<RebuildVehicleCommandClass>();
+	MakeCommand<RebuildAircraftCommandClass>();
+	MakeCommand<RebuildNavalCommandClass>();
 
 	if (Phobos::Config::DevelopmentCommands)
 	{

@@ -313,6 +313,24 @@ DisplayIncome.Offset=0,0  ; X,Y, pixels relative to default
 - Selects and centers the camera on the next TechnoType that is counted via the [harvester counter](#harvester-counter) and is currently idle.
 - For localization add `TXT_NEXT_IDLE_HARVESTER` and `TXT_NEXT_IDLE_HARVESTER_DESC` into your `.csf` file.
 
+### `[ ]` Rebuild Structure
+- Re-queue the last produced Power/Resource/Tech Building you placed.
+
+### `[ ]` Rebuild Defense
+- Re-queue the last produced Defensive Building you placed.
+
+### `[ ]` Rebuild Infantry
+- Re-queue the last produced Infantry Unit you built.
+
+### `[ ]` Rebuild Vehicle
+- Re-queue the last produced Vehicle Unit you built.
+
+### `[ ]` Rebuild Aircraft
+- Re-queue the last produced Aircraft Unit you built.
+
+### `[ ]` Rebuild Naval
+- Re-queue the last produced Naval Unit you built.
+
 ### `[ ]` Quicksave
 
 - Saves the current game.

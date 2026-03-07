@@ -325,6 +325,7 @@ Phobos fixes:
 - Fixed a bug causing erratic behaviour with units scattering f.ex moving away from buildings being placed (by Starkku)
 - Fixed an oversight that prevented units deploying into buildings from deploying on top of `CanBeBuiltOn` TerrainTypes (by Starkku)
 - Animation-fired weapons now snap on the object they are attached to if present (by TaranDahl)
+- New keyboard commands under `Interface`: `Rebuild Structure`, `Rebuild Defense`, `Rebuild Infantry`, `Rebuild Vehicle`, `Rebuild Aircraft`, `Rebuild Naval` (by RAZER)
 ```
 
 ### 0.4.0.1
