@@ -544,7 +544,7 @@ New:
 - Customize particle system of parasite logic (by NetsuNegi)
 - [Taunt warhead](New-or-Enhanced-Logics.md#taunt-warhead) (by TaranDahl)
 - [Custom hover vehicles shutdown drowning death](New-or-Enhanced-Logics.md#custom-hover-vehicles-shutdown-drowning-death) (by FlyStar)
-- SHP turret vehicles support the use of `*tur.shp` files (by FlyStar)
+- [SHP turret vehicles support the use of `*tur.shp` files](New-or-Enhanced-Logics.md#independent-shp-vehicle-turret-files) (by FlyStar)
 
 Vanilla fixes:
 - Fixed sidebar not updating queued unit numbers when adding or removing units when the production is on hold (by CrimRecya)
@@ -610,7 +610,7 @@ Vanilla fixes:
 - Fixed the bug that `DeploysInto` and `UndeploysInto` will make damaged techno lose 1 health (by CrimRecya)
 - Fixed the issue that the Jumpjet must end its movement before starting the next mission (by TaranDahl)
 - Fixed an issue where parachute units would die upon landing if bridges were destroyed during their descent (by FlyStar)
-- Voxel drawing code now skips sections that are invisible (have all zeros in the transform matrix main diagonal, meaning that the scale is 0% on all axes), thus increasing drawing performance for some voxels (by Kerbiter, ZivDero)
+- Voxel drawing code now skips sections that are invisible (have all zeros in the transform matrix main diagonal, meaning that the scale is 0% on all axes), thus increasing drawing performance for some voxels (by Kerbiter & ZivDero)
 
 Phobos fixes:
 - Fixed the bug that `AllowAirstrike=no` cannot completely prevent air strikes from being launched against it (by NetsuNegi)
