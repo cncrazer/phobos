@@ -1,4 +1,5 @@
 #include <Misc/SyncLogging.h>
+#include <Misc/SyncCRC.h>
 
 #include <AircraftClass.h>
 #include <InfantryClass.h>
@@ -10,6 +11,7 @@
 #include <Utilities/Macro.h>
 #include <Utilities/GeneralUtils.h>
 #include <Utilities/AresHelper.h>
+#include <Phobos.h>
 
 int SyncLogger::AnimCreations_HighestX = 0;
 int SyncLogger::AnimCreations_HighestY = 0;
@@ -134,6 +136,7 @@ void SyncLogger::WriteSyncLog(const char* logFilename)
 		WriteDestinationChanges(pLogFile, frameDigits);
 		WriteAnimCreations(pLogFile, frameDigits);
 		WriteTeams(pLogFile);
+		SyncCRC::WriteCheckpointLog(pLogFile, frameDigits);
 
 		fclose(pLogFile);
 	}
@@ -356,6 +359,16 @@ DEFINE_HOOK(0x64736D, Queue_AI_WriteDesyncLog, 0x5)
 {
 	GET(int, frame, ECX);
 
+	// Augment the frame CRC with Phobos extension data before it's logged/compared.
+	SyncCRC::AugmentCurrentFrameCRC();
+
+	// Take final checkpoint for this frame.
+	if (!Phobos::Optimizations::DisableSyncLogging)
+	{
+		if (Game::EnableMPSyncDebug || SyncCRC::IsSlotActiveThisFrame(5))
+			SyncCRC::TakeCheckpoint("QueueAI_Desync");
+	}
+
 	char logFilename[0x40];
 
 	if (Game::EnableMPSyncDebug)
@@ -373,6 +386,15 @@ DEFINE_HOOK(0x64736D, Queue_AI_WriteDesyncLog, 0x5)
 
 DEFINE_HOOK(0x64CD11, ExecuteDoList_WriteDesyncLog, 0x8)
 {
+	// Take a checkpoint at the point of desync detection via DoList execution.
+	if (!Phobos::Optimizations::DisableSyncLogging)
+	{
+		SyncCRC::AugmentCurrentFrameCRC();
+
+		if (Game::EnableMPSyncDebug || SyncCRC::IsSlotActiveThisFrame(6))
+			SyncCRC::TakeCheckpoint("ExecuteDoList_Desync");
+	}
+
 	char logFilename[0x40];
 
 	if (Game::EnableMPSyncDebug)

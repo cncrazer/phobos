@@ -2,6 +2,7 @@
 
 #include <SessionClass.h>
 #include <VeinholeMonsterClass.h>
+#include <Misc/SyncCRC.h>
 
 std::unique_ptr<ScenarioExt::ExtData> ScenarioExt::Data = nullptr;
 
@@ -254,10 +255,24 @@ DEFINE_HOOK(0x68AD2F, ScenarioClass_LoadFromINI, 0x5)
 
 DEFINE_HOOK(0x55B4E1, LogicClass_Update_BeforeAll, 0x5)
 {
+	if (!Phobos::Optimizations::DisableSyncLogging)
+	{
+		SyncCRC::BeginFrame();
+
+		if (Game::EnableMPSyncDebug || SyncCRC::IsSlotActiveThisFrame(0))
+			SyncCRC::TakeCheckpoint("FrameStart");
+	}
+
 	VeinholeMonsterClass::UpdateAllVeinholes();
 
 	ScenarioExt::Global()->UpdateAutoDeathObjectsInLimbo();
 	ScenarioExt::Global()->UpdateTransportReloaders();
+
+	if (!Phobos::Optimizations::DisableSyncLogging)
+	{
+		if (Game::EnableMPSyncDebug || SyncCRC::IsSlotActiveThisFrame(1))
+			SyncCRC::TakeCheckpoint("PostPhobosPreLogic");
+	}
 
 	return 0;
 }

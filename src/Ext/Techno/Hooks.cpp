@@ -25,6 +25,9 @@ DEFINE_JUMP(VTABLE, 0x7F5CF4, 0x741490) // UnitClass_GetTechnoType -> UnitClass_
 
 #pragma endregion
 
+#include <Misc/SyncCRC.h>
+#include <Phobos.h>
+
 #pragma region Update
 
 // Early, before ObjectClass_AI
@@ -33,6 +36,19 @@ DEFINE_HOOK(0x6F9E50, TechnoClass_AI, 0x5)
 	GET(TechnoClass*, pThis, ECX);
 
 	TechnoExt::ExtMap.Find(pThis)->OnEarlyUpdate();
+
+	// Mid-frame checkpoint: sample once per frame during techno processing.
+	// Use a static to take the checkpoint only on the first techno each frame.
+	if (!Phobos::Optimizations::DisableSyncLogging)
+	{
+		static int lastCheckpointFrame = -1;
+		if (Unsorted::CurrentFrame != lastCheckpointFrame)
+		{
+			lastCheckpointFrame = Unsorted::CurrentFrame;
+			if (Game::EnableMPSyncDebug || SyncCRC::IsSlotActiveThisFrame(2))
+				SyncCRC::TakeCheckpoint("FirstTechnoAI");
+		}
+	}
 
 	return 0;
 }
@@ -48,6 +64,18 @@ DEFINE_HOOK(0x4DA54E, FootClass_AI, 0x6)
 		pExt->UpdateTypeData_Foot();
 
 	pExt->UpdateWarpInDelay();
+
+	// Mid-frame checkpoint: sample once per frame after foot class processing.
+	if (!Phobos::Optimizations::DisableSyncLogging)
+	{
+		static int lastCheckpointFrame = -1;
+		if (Unsorted::CurrentFrame != lastCheckpointFrame)
+		{
+			lastCheckpointFrame = Unsorted::CurrentFrame;
+			if (Game::EnableMPSyncDebug || SyncCRC::IsSlotActiveThisFrame(3))
+				SyncCRC::TakeCheckpoint("FirstFootAI");
+		}
+	}
 
 	return 0;
 }
