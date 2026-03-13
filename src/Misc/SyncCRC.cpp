@@ -177,7 +177,7 @@ void SyncCRC::TakeCheckpoint(const char* label)
 		return;
 
 	// Compute a full CRC of the game state at this point
-	CRCEngine crc;
+	CRCEngine crc {};
 
 	// Include the vanilla frame CRC accumulated so far
 	crc(EventClass::CurrentFrameCRC);
@@ -223,7 +223,7 @@ const FrameCheckpointData& SyncCRC::GetCurrentFrameData()
 
 void SyncCRC::AugmentCurrentFrameCRC()
 {
-	CRCEngine crc;
+	CRCEngine crc {};
 	crc(EventClass::CurrentFrameCRC);
 	ComputePhobosExtensionCRC(crc);
 	EventClass::CurrentFrameCRC = static_cast<DWORD>(static_cast<int>(crc));
