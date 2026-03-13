@@ -98,9 +98,6 @@ void SyncCRC::CRCHouseExtensions(CRCEngine& crc)
 		// Production state
 		crc(pHouseExt->LastBuiltNavalVehicleType);
 		crc(pHouseExt->ProducingNavalUnitTypeIndex);
-		crc(pHouseExt->LastBuiltVehicleTypeIndex);
-		crc(pHouseExt->LastBuiltAircraftTypeIndex);
-		crc(pHouseExt->LastBuiltNavalTypeIndex);
 
 		// Factory counts (affects MFB logic)
 		crc(pHouseExt->NumAirpads_NonMFB);
