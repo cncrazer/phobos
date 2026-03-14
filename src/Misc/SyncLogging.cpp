@@ -13,6 +13,23 @@
 #include <Utilities/AresHelper.h>
 #include <Phobos.h>
 
+namespace
+{
+	const char* GetObjectTypeID(AbstractClass* pObject)
+	{
+		if (!pObject)
+			return nullptr;
+
+		if (auto pObj = abstract_cast<ObjectClass*>(pObject))
+		{
+			if (auto pType = pObj->GetType())
+				return pType->get_ID();
+		}
+
+		return nullptr;
+	}
+}
+
 int SyncLogger::AnimCreations_HighestX = 0;
 int SyncLogger::AnimCreations_HighestY = 0;
 int SyncLogger::AnimCreations_HighestZ = 0;
@@ -61,14 +78,16 @@ void SyncLogger::AddTargetChangeSyncLogEvent(AbstractClass* pObject, AbstractCla
 	MakeCallerRelative(callerAddress);
 	auto targetRTTI = AbstractType::None;
 	unsigned int targetID = 0;
+	const char* targetTypeID = nullptr;
 
 	if (pTarget)
 	{
 		targetRTTI = pTarget->WhatAmI();
 		targetID = pTarget->UniqueID;
+		targetTypeID = GetObjectTypeID(pTarget);
 	}
 
-	SyncLogger::TargetChanges.Add(TargetChangeSyncLogEvent(pObject->WhatAmI(), pObject->UniqueID, targetRTTI, targetID, callerAddress, Unsorted::CurrentFrame));
+	SyncLogger::TargetChanges.Add(TargetChangeSyncLogEvent(pObject->WhatAmI(), pObject->UniqueID, GetObjectTypeID(pObject), targetRTTI, targetID, targetTypeID, callerAddress, Unsorted::CurrentFrame));
 }
 
 void SyncLogger::AddDestinationChangeSyncLogEvent(AbstractClass* pObject, AbstractClass* pTarget, unsigned int callerAddress)
@@ -79,14 +98,16 @@ void SyncLogger::AddDestinationChangeSyncLogEvent(AbstractClass* pObject, Abstra
 	MakeCallerRelative(callerAddress);
 	auto targetRTTI = AbstractType::None;
 	unsigned int targetID = 0;
+	const char* targetTypeID = nullptr;
 
 	if (pTarget)
 	{
 		targetRTTI = pTarget->WhatAmI();
 		targetID = pTarget->UniqueID;
+		targetTypeID = GetObjectTypeID(pTarget);
 	}
 
-	SyncLogger::DestinationChanges.Add(TargetChangeSyncLogEvent(pObject->WhatAmI(), pObject->UniqueID, targetRTTI, targetID, callerAddress, Unsorted::CurrentFrame));
+	SyncLogger::DestinationChanges.Add(TargetChangeSyncLogEvent(pObject->WhatAmI(), pObject->UniqueID, GetObjectTypeID(pObject), targetRTTI, targetID, targetTypeID, callerAddress, Unsorted::CurrentFrame));
 }
 
 void SyncLogger::AddMissionOverrideSyncLogEvent(AbstractClass* pObject, int mission, unsigned int callerAddress)
@@ -95,7 +116,7 @@ void SyncLogger::AddMissionOverrideSyncLogEvent(AbstractClass* pObject, int miss
 		return;
 
 	MakeCallerRelative(callerAddress);
-	SyncLogger::MissionOverrides.Add(MissionOverrideSyncLogEvent(pObject->WhatAmI(), pObject->UniqueID, mission, callerAddress, Unsorted::CurrentFrame));
+	SyncLogger::MissionOverrides.Add(MissionOverrideSyncLogEvent(pObject->WhatAmI(), pObject->UniqueID, GetObjectTypeID(pObject), mission, callerAddress, Unsorted::CurrentFrame));
 }
 
 void SyncLogger::AddAnimCreationSyncLogEvent(const CoordStruct& coords, unsigned int callerAddress)
@@ -201,8 +222,8 @@ void SyncLogger::WriteTargetChanges(FILE* const pLogFile, int frameDigits)
 		if (!targetChange.Initialized)
 			continue;
 
-		fprintf(pLogFile, "#%05d: RTTI: %02d | ID: %08d | TargetRTTI: %02d | TargetID: %08d | Caller: %08x | Frame: %*d\n",
-			i, targetChange.Type, targetChange.ID, targetChange.TargetType, targetChange.TargetID, targetChange.Caller, frameDigits, targetChange.Frame);
+		fprintf(pLogFile, "#%05d: RTTI: %02d (%s) | ID: %08d | TargetRTTI: %02d (%s) | TargetID: %08d | Caller: %08x | Frame: %*d\n",
+			i, targetChange.Type, targetChange.TypeID, targetChange.ID, targetChange.TargetType, targetChange.TargetTypeID, targetChange.TargetID, targetChange.Caller, frameDigits, targetChange.Frame);
 	}
 
 	fprintf(pLogFile, "\n");
@@ -219,8 +240,8 @@ void SyncLogger::WriteDestinationChanges(FILE* const pLogFile, int frameDigits)
 		if (!destChange.Initialized)
 			continue;
 
-		fprintf(pLogFile, "#%05d: RTTI: %02d | ID: %08d | TargetRTTI: %02d | TargetID: %08d | Caller: %08x | Frame: %*d\n",
-			i, destChange.Type, destChange.ID, destChange.TargetType, destChange.TargetID, destChange.Caller, frameDigits, destChange.Frame);
+		fprintf(pLogFile, "#%05d: RTTI: %02d (%s) | ID: %08d | TargetRTTI: %02d (%s) | TargetID: %08d | Caller: %08x | Frame: %*d\n",
+			i, destChange.Type, destChange.TypeID, destChange.ID, destChange.TargetType, destChange.TargetTypeID, destChange.TargetID, destChange.Caller, frameDigits, destChange.Frame);
 	}
 
 	fprintf(pLogFile, "\n");
@@ -237,8 +258,8 @@ void SyncLogger::WriteMissionOverrides(FILE* const pLogFile, int frameDigits)
 		if (!missionOverride.Initialized)
 			continue;
 
-		fprintf(pLogFile, "#%05d: RTTI: %02d | ID: %08d | Mission: %02d | Caller: %08x | Frame: %*d\n",
-			i, missionOverride.Type, missionOverride.ID, missionOverride.Mission, missionOverride.Caller, frameDigits, missionOverride.Frame);
+		fprintf(pLogFile, "#%05d: RTTI: %02d (%s) | ID: %08d | Mission: %02d | Caller: %08x | Frame: %*d\n",
+			i, missionOverride.Type, missionOverride.TypeID, missionOverride.ID, missionOverride.Mission, missionOverride.Caller, frameDigits, missionOverride.Frame);
 	}
 
 	fprintf(pLogFile, "\n");

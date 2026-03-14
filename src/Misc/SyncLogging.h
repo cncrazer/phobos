@@ -109,27 +109,38 @@ struct TargetChangeSyncLogEvent : SyncLogEvent
 {
 	AbstractType Type;
 	DWORD ID;
+	char TypeID[0x18];
 	AbstractType TargetType;
 	DWORD TargetID;
+	char TargetTypeID[0x18];
 
 	TargetChangeSyncLogEvent() = default;
 
-	TargetChangeSyncLogEvent(const AbstractType& Type, const DWORD& ID, const AbstractType& TargetType, const DWORD& TargetID, unsigned int Caller, unsigned int Frame)
+	TargetChangeSyncLogEvent(const AbstractType& Type, const DWORD& ID, const char* TypeID, const AbstractType& TargetType, const DWORD& TargetID, const char* TargetTypeID, unsigned int Caller, unsigned int Frame)
 		: Type(Type), ID(ID), TargetType(TargetType), TargetID(TargetID), SyncLogEvent(Caller, Frame)
-	{ }
+	{
+		strncpy(this->TypeID, TypeID ? TypeID : "?", sizeof(this->TypeID) - 1);
+		this->TypeID[sizeof(this->TypeID) - 1] = '\0';
+		strncpy(this->TargetTypeID, TargetTypeID ? TargetTypeID : "?", sizeof(this->TargetTypeID) - 1);
+		this->TargetTypeID[sizeof(this->TargetTypeID) - 1] = '\0';
+	}
 };
 
 struct MissionOverrideSyncLogEvent : SyncLogEvent
 {
 	AbstractType Type;
 	DWORD ID;
+	char TypeID[0x18];
 	int Mission;
 
 	MissionOverrideSyncLogEvent() : SyncLogEvent() { }
 
-	MissionOverrideSyncLogEvent(const AbstractType& Type, const DWORD& ID, int Mission, unsigned int Caller, unsigned int Frame)
+	MissionOverrideSyncLogEvent(const AbstractType& Type, const DWORD& ID, const char* TypeID, int Mission, unsigned int Caller, unsigned int Frame)
 		: Type(Type), ID(ID), Mission(Mission), SyncLogEvent(Caller, Frame)
-	{ }
+	{
+		strncpy(this->TypeID, TypeID ? TypeID : "?", sizeof(this->TypeID) - 1);
+		this->TypeID[sizeof(this->TypeID) - 1] = '\0';
+	}
 };
 
 struct AnimCreationSyncLogEvent : SyncLogEvent
