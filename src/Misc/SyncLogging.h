@@ -110,14 +110,21 @@ struct TargetChangeSyncLogEvent : SyncLogEvent
 	AbstractType Type;
 	DWORD ID;
 	char TypeID[0x18];
+	int Owner;
+	CoordStruct Coords;
 	AbstractType TargetType;
 	DWORD TargetID;
 	char TargetTypeID[0x18];
+	CoordStruct TargetCoords;
 
 	TargetChangeSyncLogEvent() = default;
 
-	TargetChangeSyncLogEvent(const AbstractType& Type, const DWORD& ID, const char* TypeID, const AbstractType& TargetType, const DWORD& TargetID, const char* TargetTypeID, unsigned int Caller, unsigned int Frame)
-		: Type(Type), ID(ID), TargetType(TargetType), TargetID(TargetID), SyncLogEvent(Caller, Frame)
+	TargetChangeSyncLogEvent(const AbstractType& Type, const DWORD& ID, const char* TypeID, int Owner, const CoordStruct& Coords,
+		const AbstractType& TargetType, const DWORD& TargetID, const char* TargetTypeID, const CoordStruct& TargetCoords,
+		unsigned int Caller, unsigned int Frame)
+		: Type(Type), ID(ID), Owner(Owner), Coords(Coords)
+		, TargetType(TargetType), TargetID(TargetID), TargetCoords(TargetCoords)
+		, SyncLogEvent(Caller, Frame)
 	{
 		strncpy(this->TypeID, TypeID ? TypeID : "?", sizeof(this->TypeID) - 1);
 		this->TypeID[sizeof(this->TypeID) - 1] = '\0';
@@ -131,12 +138,15 @@ struct MissionOverrideSyncLogEvent : SyncLogEvent
 	AbstractType Type;
 	DWORD ID;
 	char TypeID[0x18];
+	int Owner;
+	CoordStruct Coords;
 	int Mission;
 
 	MissionOverrideSyncLogEvent() : SyncLogEvent() { }
 
-	MissionOverrideSyncLogEvent(const AbstractType& Type, const DWORD& ID, const char* TypeID, int Mission, unsigned int Caller, unsigned int Frame)
-		: Type(Type), ID(ID), Mission(Mission), SyncLogEvent(Caller, Frame)
+	MissionOverrideSyncLogEvent(const AbstractType& Type, const DWORD& ID, const char* TypeID, int Owner, const CoordStruct& Coords,
+		int Mission, unsigned int Caller, unsigned int Frame)
+		: Type(Type), ID(ID), Owner(Owner), Coords(Coords), Mission(Mission), SyncLogEvent(Caller, Frame)
 	{
 		strncpy(this->TypeID, TypeID ? TypeID : "?", sizeof(this->TypeID) - 1);
 		this->TypeID[sizeof(this->TypeID) - 1] = '\0';

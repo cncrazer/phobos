@@ -28,6 +28,25 @@ namespace
 
 		return nullptr;
 	}
+
+	int GetObjectOwnerIndex(AbstractClass* pObject)
+	{
+		if (auto pTechno = abstract_cast<TechnoClass*>(pObject))
+		{
+			if (pTechno->Owner)
+				return pTechno->Owner->ArrayIndex;
+		}
+
+		return -1;
+	}
+
+	CoordStruct GetObjectLocation(AbstractClass* pObject)
+	{
+		if (auto pObj = abstract_cast<ObjectClass*>(pObject))
+			return pObj->Location;
+
+		return CoordStruct { 0, 0, 0 };
+	}
 }
 
 int SyncLogger::AnimCreations_HighestX = 0;
@@ -79,15 +98,21 @@ void SyncLogger::AddTargetChangeSyncLogEvent(AbstractClass* pObject, AbstractCla
 	auto targetRTTI = AbstractType::None;
 	unsigned int targetID = 0;
 	const char* targetTypeID = nullptr;
+	CoordStruct targetCoords { 0, 0, 0 };
 
 	if (pTarget)
 	{
 		targetRTTI = pTarget->WhatAmI();
 		targetID = pTarget->UniqueID;
 		targetTypeID = GetObjectTypeID(pTarget);
+		targetCoords = GetObjectLocation(pTarget);
 	}
 
-	SyncLogger::TargetChanges.Add(TargetChangeSyncLogEvent(pObject->WhatAmI(), pObject->UniqueID, GetObjectTypeID(pObject), targetRTTI, targetID, targetTypeID, callerAddress, Unsorted::CurrentFrame));
+	SyncLogger::TargetChanges.Add(TargetChangeSyncLogEvent(
+		pObject->WhatAmI(), pObject->UniqueID, GetObjectTypeID(pObject),
+		GetObjectOwnerIndex(pObject), GetObjectLocation(pObject),
+		targetRTTI, targetID, targetTypeID, targetCoords,
+		callerAddress, Unsorted::CurrentFrame));
 }
 
 void SyncLogger::AddDestinationChangeSyncLogEvent(AbstractClass* pObject, AbstractClass* pTarget, unsigned int callerAddress)
@@ -99,15 +124,21 @@ void SyncLogger::AddDestinationChangeSyncLogEvent(AbstractClass* pObject, Abstra
 	auto targetRTTI = AbstractType::None;
 	unsigned int targetID = 0;
 	const char* targetTypeID = nullptr;
+	CoordStruct targetCoords { 0, 0, 0 };
 
 	if (pTarget)
 	{
 		targetRTTI = pTarget->WhatAmI();
 		targetID = pTarget->UniqueID;
 		targetTypeID = GetObjectTypeID(pTarget);
+		targetCoords = GetObjectLocation(pTarget);
 	}
 
-	SyncLogger::DestinationChanges.Add(TargetChangeSyncLogEvent(pObject->WhatAmI(), pObject->UniqueID, GetObjectTypeID(pObject), targetRTTI, targetID, targetTypeID, callerAddress, Unsorted::CurrentFrame));
+	SyncLogger::DestinationChanges.Add(TargetChangeSyncLogEvent(
+		pObject->WhatAmI(), pObject->UniqueID, GetObjectTypeID(pObject),
+		GetObjectOwnerIndex(pObject), GetObjectLocation(pObject),
+		targetRTTI, targetID, targetTypeID, targetCoords,
+		callerAddress, Unsorted::CurrentFrame));
 }
 
 void SyncLogger::AddMissionOverrideSyncLogEvent(AbstractClass* pObject, int mission, unsigned int callerAddress)
@@ -116,7 +147,10 @@ void SyncLogger::AddMissionOverrideSyncLogEvent(AbstractClass* pObject, int miss
 		return;
 
 	MakeCallerRelative(callerAddress);
-	SyncLogger::MissionOverrides.Add(MissionOverrideSyncLogEvent(pObject->WhatAmI(), pObject->UniqueID, GetObjectTypeID(pObject), mission, callerAddress, Unsorted::CurrentFrame));
+	SyncLogger::MissionOverrides.Add(MissionOverrideSyncLogEvent(
+		pObject->WhatAmI(), pObject->UniqueID, GetObjectTypeID(pObject),
+		GetObjectOwnerIndex(pObject), GetObjectLocation(pObject),
+		mission, callerAddress, Unsorted::CurrentFrame));
 }
 
 void SyncLogger::AddAnimCreationSyncLogEvent(const CoordStruct& coords, unsigned int callerAddress)
@@ -222,8 +256,15 @@ void SyncLogger::WriteTargetChanges(FILE* const pLogFile, int frameDigits)
 		if (!targetChange.Initialized)
 			continue;
 
-		fprintf(pLogFile, "#%05d: RTTI: %02d (%s) | ID: %08d | TargetRTTI: %02d (%s) | TargetID: %08d | Caller: %08x | Frame: %*d\n",
-			i, targetChange.Type, targetChange.TypeID, targetChange.ID, targetChange.TargetType, targetChange.TargetTypeID, targetChange.TargetID, targetChange.Caller, frameDigits, targetChange.Frame);
+		fprintf(pLogFile, "#%05d: RTTI: %02d (%s) | ID: %08d | Owner: %d | Coords: %d,%d,%d (%d,%d) | TargetRTTI: %02d (%s) | TargetID: %08d | TargetCoords: %d,%d,%d (%d,%d) | Caller: %08x | Frame: %*d\n",
+			i, targetChange.Type, targetChange.TypeID, targetChange.ID,
+			targetChange.Owner,
+			targetChange.Coords.X, targetChange.Coords.Y, targetChange.Coords.Z,
+			targetChange.Coords.X / 256, targetChange.Coords.Y / 256,
+			targetChange.TargetType, targetChange.TargetTypeID, targetChange.TargetID,
+			targetChange.TargetCoords.X, targetChange.TargetCoords.Y, targetChange.TargetCoords.Z,
+			targetChange.TargetCoords.X / 256, targetChange.TargetCoords.Y / 256,
+			targetChange.Caller, frameDigits, targetChange.Frame);
 	}
 
 	fprintf(pLogFile, "\n");
@@ -240,8 +281,15 @@ void SyncLogger::WriteDestinationChanges(FILE* const pLogFile, int frameDigits)
 		if (!destChange.Initialized)
 			continue;
 
-		fprintf(pLogFile, "#%05d: RTTI: %02d (%s) | ID: %08d | TargetRTTI: %02d (%s) | TargetID: %08d | Caller: %08x | Frame: %*d\n",
-			i, destChange.Type, destChange.TypeID, destChange.ID, destChange.TargetType, destChange.TargetTypeID, destChange.TargetID, destChange.Caller, frameDigits, destChange.Frame);
+		fprintf(pLogFile, "#%05d: RTTI: %02d (%s) | ID: %08d | Owner: %d | Coords: %d,%d,%d (%d,%d) | TargetRTTI: %02d (%s) | TargetID: %08d | TargetCoords: %d,%d,%d (%d,%d) | Caller: %08x | Frame: %*d\n",
+			i, destChange.Type, destChange.TypeID, destChange.ID,
+			destChange.Owner,
+			destChange.Coords.X, destChange.Coords.Y, destChange.Coords.Z,
+			destChange.Coords.X / 256, destChange.Coords.Y / 256,
+			destChange.TargetType, destChange.TargetTypeID, destChange.TargetID,
+			destChange.TargetCoords.X, destChange.TargetCoords.Y, destChange.TargetCoords.Z,
+			destChange.TargetCoords.X / 256, destChange.TargetCoords.Y / 256,
+			destChange.Caller, frameDigits, destChange.Frame);
 	}
 
 	fprintf(pLogFile, "\n");
@@ -258,8 +306,12 @@ void SyncLogger::WriteMissionOverrides(FILE* const pLogFile, int frameDigits)
 		if (!missionOverride.Initialized)
 			continue;
 
-		fprintf(pLogFile, "#%05d: RTTI: %02d (%s) | ID: %08d | Mission: %02d | Caller: %08x | Frame: %*d\n",
-			i, missionOverride.Type, missionOverride.TypeID, missionOverride.ID, missionOverride.Mission, missionOverride.Caller, frameDigits, missionOverride.Frame);
+		fprintf(pLogFile, "#%05d: RTTI: %02d (%s) | ID: %08d | Owner: %d | Coords: %d,%d,%d (%d,%d) | Mission: %02d | Caller: %08x | Frame: %*d\n",
+			i, missionOverride.Type, missionOverride.TypeID, missionOverride.ID,
+			missionOverride.Owner,
+			missionOverride.Coords.X, missionOverride.Coords.Y, missionOverride.Coords.Z,
+			missionOverride.Coords.X / 256, missionOverride.Coords.Y / 256,
+			missionOverride.Mission, missionOverride.Caller, frameDigits, missionOverride.Frame);
 	}
 
 	fprintf(pLogFile, "\n");
