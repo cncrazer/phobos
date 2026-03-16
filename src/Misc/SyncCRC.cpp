@@ -11,6 +11,7 @@
 #include <Ext/House/Body.h>
 #include <Ext/Building/Body.h>
 #include <Ext/Scenario/Body.h>
+#include <Ext/Team/Body.h>
 
 #include <Utilities/Debug.h>
 #include <Utilities/Macro.h>
@@ -30,6 +31,7 @@ void SyncCRC::ComputePhobosExtensionCRC(CRCEngine& crc)
 	CRCHouseExtensions(crc);
 	CRCBuildingExtensions(crc);
 	CRCScenarioExtension(crc);
+	CRCTeamExtensions(crc);
 }
 
 void SyncCRC::CRCTechnoExtensions(CRCEngine& crc)
@@ -153,6 +155,38 @@ void SyncCRC::CRCScenarioExtension(CRCEngine& crc)
 	// Auto-death and transport reloader tracking
 	crc(static_cast<int>(pScenarioExt->AutoDeathObjects.size()));
 	crc(static_cast<int>(pScenarioExt->TransportReloaders.size()));
+}
+
+void SyncCRC::CRCTeamExtensions(CRCEngine& crc)
+{
+	for (auto const pTeam : TeamClass::Array)
+	{
+		auto const pTeamExt = TeamExt::ExtMap.Find(pTeam);
+		if (!pTeamExt)
+			continue;
+
+		// AI script decision state
+		crc(pTeamExt->WaitNoTargetAttempts);
+		crc(pTeamExt->NextSuccessWeightAward);
+		crc(pTeamExt->IdxSelectedObjectFromAIList);
+		crc(pTeamExt->CloseEnough);
+		crc(pTeamExt->Countdown_RegroupAtLeader);
+		crc(pTeamExt->MoveMissionEndMode);
+		crc(pTeamExt->WaitNoTargetCounter);
+
+		// Timer states
+		crc(pTeamExt->WaitNoTargetTimer.GetTimeLeft());
+		crc(pTeamExt->ForceJump_Countdown.GetTimeLeft());
+		crc(pTeamExt->ForceJump_InitialCountdown);
+		crc(pTeamExt->ForceJump_RepeatMode);
+
+		// Team leader identity
+		if (pTeamExt->TeamLeader)
+			crc(pTeamExt->TeamLeader->UniqueID);
+
+		// Script history depth
+		crc(static_cast<int>(pTeamExt->PreviousScriptList.size()));
+	}
 }
 
 // ============================================================================

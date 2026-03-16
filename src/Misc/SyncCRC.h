@@ -61,6 +61,9 @@ public:
 	// CRC Scenario extensions (global Phobos state)
 	static void CRCScenarioExtension(CRCEngine& crc);
 
+	// CRC Team extensions (AI decision state)
+	static void CRCTeamExtensions(CRCEngine& crc);
+
 	// ---- Mid-frame Checkpoints ----
 	// Take a CRC snapshot at the current point in frame logic.
 	// label: short identifier for this checkpoint location (e.g. "PostLogicAI", "PostTechnoAI")
