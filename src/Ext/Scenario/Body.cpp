@@ -1,7 +1,11 @@
 #include "Body.h"
 
+#include <MapClass.h>
 #include <SessionClass.h>
+#include <TacticalClass.h>
 #include <VeinholeMonsterClass.h>
+#include <Misc/SyncCRC.h>
+#include <Phobos.h>
 
 std::unique_ptr<ScenarioExt::ExtData> ScenarioExt::Data = nullptr;
 
@@ -254,10 +258,83 @@ DEFINE_HOOK(0x68AD2F, ScenarioClass_LoadFromINI, 0x5)
 
 DEFINE_HOOK(0x55B4E1, LogicClass_Update_BeforeAll, 0x5)
 {
+	if (!Phobos::Optimizations::DisableSyncLogging)
+	{
+		SyncCRC::BeginFrame();
+
+		if (Game::EnableMPSyncDebug || SyncCRC::IsSlotActiveThisFrame(0))
+			SyncCRC::TakeCheckpoint("FrameStart");
+	}
+
+	// Stress test: run full sync CRC computation 1000 times per frame.
+	// Runs in all modes (including skirmish) for uncapped FPS benchmarking.
+	//for (int i = 0; i < 10; i++)
+	//{
+	//	CRCEngine crc {};
+	//	crc(EventClass::CurrentFrameCRC);
+	//	crc(ScenarioClass::Instance->Random.Next1);
+	//	crc(ScenarioClass::Instance->Random.Next2);
+	//	SyncCRC::ComputePhobosExtensionCRC(crc);
+	//}
+
 	VeinholeMonsterClass::UpdateAllVeinholes();
 
 	ScenarioExt::Global()->UpdateAutoDeathObjectsInLimbo();
 	ScenarioExt::Global()->UpdateTransportReloaders();
+
+	if (!Phobos::Optimizations::DisableSyncLogging)
+	{
+		if (Game::EnableMPSyncDebug || SyncCRC::IsSlotActiveThisFrame(1))
+			SyncCRC::TakeCheckpoint("PostPhobosPreLogic");
+	}
+
+	return 0;
+}
+
+// After MapClass::Logic in LogicClass::Update — captures state after map logic processing.
+// Overwritten instruction: mov ecx, dword ptr [0x887324] (TacticalMap pointer)
+DEFINE_HOOK(0x55B65F, LogicClass_Update_PostMapLogic, 0x6)
+{
+	if (!Phobos::Optimizations::DisableSyncLogging)
+	{
+		if (Game::EnableMPSyncDebug || SyncCRC::IsSlotActiveThisFrame(7))
+			SyncCRC::TakeCheckpoint("PostMapLogic");
+	}
+
+	// Restore overwritten instruction: mov ecx, dword ptr [TacticalMap]
+	R->ECX(reinterpret_cast<DWORD>(TacticalClass::Instance));
+
+	return 0;
+}
+
+// After all HouseClass::Update calls in LogicClass::Update — captures state after house AI.
+// Overwritten instruction: mov ecx, offset Map (0x87F7E8)
+DEFINE_HOOK(0x55B6B3, LogicClass_Update_PostHouseAI, 0x5)
+{
+	if (!Phobos::Optimizations::DisableSyncLogging)
+	{
+		if (Game::EnableMPSyncDebug || SyncCRC::IsSlotActiveThisFrame(8))
+			SyncCRC::TakeCheckpoint("PostHouseAI");
+	}
+
+	// Restore overwritten instruction: mov ecx, offset Map
+	R->ECX(reinterpret_cast<DWORD>(&MapClass::Instance));
+
+	return 0;
+}
+
+// After LogicClass::Update returns in Main_Loop — captures full post-logic state.
+// Overwritten instruction: mov eax, dword ptr [0xA8EC08]
+DEFINE_HOOK(0x55DCA3, MainLoop_PostLogicUpdate, 0x5)
+{
+	if (!Phobos::Optimizations::DisableSyncLogging)
+	{
+		if (Game::EnableMPSyncDebug || SyncCRC::IsSlotActiveThisFrame(4))
+			SyncCRC::TakeCheckpoint("PostLogicUpdate");
+	}
+
+	// Restore overwritten instruction: mov eax, dword ptr [0xA8EC08]
+	R->EAX(*reinterpret_cast<DWORD*>(0xA8EC08));
 
 	return 0;
 }

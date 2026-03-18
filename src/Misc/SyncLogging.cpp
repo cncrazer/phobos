@@ -1,8 +1,10 @@
 #include <Misc/SyncLogging.h>
+#include <Misc/SyncCRC.h>
 
 #include <AircraftClass.h>
 #include <InfantryClass.h>
 #include <HouseClass.h>
+#include <ScenarioClass.h>
 #include <Unsorted.h>
 #include <ScriptClass.h>
 
@@ -10,6 +12,43 @@
 #include <Utilities/Macro.h>
 #include <Utilities/GeneralUtils.h>
 #include <Utilities/AresHelper.h>
+#include <Phobos.h>
+
+namespace
+{
+	const char* GetObjectTypeID(AbstractClass* pObject)
+	{
+		if (!pObject)
+			return nullptr;
+
+		if (auto pObj = abstract_cast<ObjectClass*>(pObject))
+		{
+			if (auto pType = pObj->GetType())
+				return pType->get_ID();
+		}
+
+		return nullptr;
+	}
+
+	int GetObjectOwnerIndex(AbstractClass* pObject)
+	{
+		if (auto pTechno = abstract_cast<TechnoClass*>(pObject))
+		{
+			if (pTechno->Owner)
+				return pTechno->Owner->ArrayIndex;
+		}
+
+		return -1;
+	}
+
+	CoordStruct GetObjectLocation(AbstractClass* pObject)
+	{
+		if (auto pObj = abstract_cast<ObjectClass*>(pObject))
+			return pObj->Location;
+
+		return CoordStruct { 0, 0, 0 };
+	}
+}
 
 int SyncLogger::AnimCreations_HighestX = 0;
 int SyncLogger::AnimCreations_HighestY = 0;
@@ -59,14 +98,22 @@ void SyncLogger::AddTargetChangeSyncLogEvent(AbstractClass* pObject, AbstractCla
 	MakeCallerRelative(callerAddress);
 	auto targetRTTI = AbstractType::None;
 	unsigned int targetID = 0;
+	const char* targetTypeID = nullptr;
+	CoordStruct targetCoords { 0, 0, 0 };
 
 	if (pTarget)
 	{
 		targetRTTI = pTarget->WhatAmI();
 		targetID = pTarget->UniqueID;
+		targetTypeID = GetObjectTypeID(pTarget);
+		targetCoords = GetObjectLocation(pTarget);
 	}
 
-	SyncLogger::TargetChanges.Add(TargetChangeSyncLogEvent(pObject->WhatAmI(), pObject->UniqueID, targetRTTI, targetID, callerAddress, Unsorted::CurrentFrame));
+	SyncLogger::TargetChanges.Add(TargetChangeSyncLogEvent(
+		pObject->WhatAmI(), pObject->UniqueID, GetObjectTypeID(pObject),
+		GetObjectOwnerIndex(pObject), GetObjectLocation(pObject),
+		targetRTTI, targetID, targetTypeID, targetCoords,
+		callerAddress, Unsorted::CurrentFrame));
 }
 
 void SyncLogger::AddDestinationChangeSyncLogEvent(AbstractClass* pObject, AbstractClass* pTarget, unsigned int callerAddress)
@@ -77,14 +124,22 @@ void SyncLogger::AddDestinationChangeSyncLogEvent(AbstractClass* pObject, Abstra
 	MakeCallerRelative(callerAddress);
 	auto targetRTTI = AbstractType::None;
 	unsigned int targetID = 0;
+	const char* targetTypeID = nullptr;
+	CoordStruct targetCoords { 0, 0, 0 };
 
 	if (pTarget)
 	{
 		targetRTTI = pTarget->WhatAmI();
 		targetID = pTarget->UniqueID;
+		targetTypeID = GetObjectTypeID(pTarget);
+		targetCoords = GetObjectLocation(pTarget);
 	}
 
-	SyncLogger::DestinationChanges.Add(TargetChangeSyncLogEvent(pObject->WhatAmI(), pObject->UniqueID, targetRTTI, targetID, callerAddress, Unsorted::CurrentFrame));
+	SyncLogger::DestinationChanges.Add(TargetChangeSyncLogEvent(
+		pObject->WhatAmI(), pObject->UniqueID, GetObjectTypeID(pObject),
+		GetObjectOwnerIndex(pObject), GetObjectLocation(pObject),
+		targetRTTI, targetID, targetTypeID, targetCoords,
+		callerAddress, Unsorted::CurrentFrame));
 }
 
 void SyncLogger::AddMissionOverrideSyncLogEvent(AbstractClass* pObject, int mission, unsigned int callerAddress)
@@ -93,7 +148,10 @@ void SyncLogger::AddMissionOverrideSyncLogEvent(AbstractClass* pObject, int miss
 		return;
 
 	MakeCallerRelative(callerAddress);
-	SyncLogger::MissionOverrides.Add(MissionOverrideSyncLogEvent(pObject->WhatAmI(), pObject->UniqueID, mission, callerAddress, Unsorted::CurrentFrame));
+	SyncLogger::MissionOverrides.Add(MissionOverrideSyncLogEvent(
+		pObject->WhatAmI(), pObject->UniqueID, GetObjectTypeID(pObject),
+		GetObjectOwnerIndex(pObject), GetObjectLocation(pObject),
+		mission, callerAddress, Unsorted::CurrentFrame));
 }
 
 void SyncLogger::AddAnimCreationSyncLogEvent(const CoordStruct& coords, unsigned int callerAddress)
@@ -134,6 +192,7 @@ void SyncLogger::WriteSyncLog(const char* logFilename)
 		WriteDestinationChanges(pLogFile, frameDigits);
 		WriteAnimCreations(pLogFile, frameDigits);
 		WriteTeams(pLogFile);
+		SyncCRC::WriteCheckpointLog(pLogFile, frameDigits);
 
 		fclose(pLogFile);
 	}
@@ -198,8 +257,15 @@ void SyncLogger::WriteTargetChanges(FILE* const pLogFile, int frameDigits)
 		if (!targetChange.Initialized)
 			continue;
 
-		fprintf(pLogFile, "#%05d: RTTI: %02d | ID: %08d | TargetRTTI: %02d | TargetID: %08d | Caller: %08x | Frame: %*d\n",
-			i, targetChange.Type, targetChange.ID, targetChange.TargetType, targetChange.TargetID, targetChange.Caller, frameDigits, targetChange.Frame);
+		fprintf(pLogFile, "#%05d: RTTI: %02d (%s) | ID: %08d | Owner: %d | Coords: %d,%d,%d (%d,%d) | TargetRTTI: %02d (%s) | TargetID: %08d | TargetCoords: %d,%d,%d (%d,%d) | Caller: %08x | Frame: %*d\n",
+			i, targetChange.Type, targetChange.TypeID, targetChange.ID,
+			targetChange.Owner,
+			targetChange.Coords.X, targetChange.Coords.Y, targetChange.Coords.Z,
+			targetChange.Coords.X / 256, targetChange.Coords.Y / 256,
+			targetChange.TargetType, targetChange.TargetTypeID, targetChange.TargetID,
+			targetChange.TargetCoords.X, targetChange.TargetCoords.Y, targetChange.TargetCoords.Z,
+			targetChange.TargetCoords.X / 256, targetChange.TargetCoords.Y / 256,
+			targetChange.Caller, frameDigits, targetChange.Frame);
 	}
 
 	fprintf(pLogFile, "\n");
@@ -216,8 +282,15 @@ void SyncLogger::WriteDestinationChanges(FILE* const pLogFile, int frameDigits)
 		if (!destChange.Initialized)
 			continue;
 
-		fprintf(pLogFile, "#%05d: RTTI: %02d | ID: %08d | TargetRTTI: %02d | TargetID: %08d | Caller: %08x | Frame: %*d\n",
-			i, destChange.Type, destChange.ID, destChange.TargetType, destChange.TargetID, destChange.Caller, frameDigits, destChange.Frame);
+		fprintf(pLogFile, "#%05d: RTTI: %02d (%s) | ID: %08d | Owner: %d | Coords: %d,%d,%d (%d,%d) | TargetRTTI: %02d (%s) | TargetID: %08d | TargetCoords: %d,%d,%d (%d,%d) | Caller: %08x | Frame: %*d\n",
+			i, destChange.Type, destChange.TypeID, destChange.ID,
+			destChange.Owner,
+			destChange.Coords.X, destChange.Coords.Y, destChange.Coords.Z,
+			destChange.Coords.X / 256, destChange.Coords.Y / 256,
+			destChange.TargetType, destChange.TargetTypeID, destChange.TargetID,
+			destChange.TargetCoords.X, destChange.TargetCoords.Y, destChange.TargetCoords.Z,
+			destChange.TargetCoords.X / 256, destChange.TargetCoords.Y / 256,
+			destChange.Caller, frameDigits, destChange.Frame);
 	}
 
 	fprintf(pLogFile, "\n");
@@ -234,8 +307,12 @@ void SyncLogger::WriteMissionOverrides(FILE* const pLogFile, int frameDigits)
 		if (!missionOverride.Initialized)
 			continue;
 
-		fprintf(pLogFile, "#%05d: RTTI: %02d | ID: %08d | Mission: %02d | Caller: %08x | Frame: %*d\n",
-			i, missionOverride.Type, missionOverride.ID, missionOverride.Mission, missionOverride.Caller, frameDigits, missionOverride.Frame);
+		fprintf(pLogFile, "#%05d: RTTI: %02d (%s) | ID: %08d | Owner: %d | Coords: %d,%d,%d (%d,%d) | Mission: %02d | Caller: %08x | Frame: %*d\n",
+			i, missionOverride.Type, missionOverride.TypeID, missionOverride.ID,
+			missionOverride.Owner,
+			missionOverride.Coords.X, missionOverride.Coords.Y, missionOverride.Coords.Z,
+			missionOverride.Coords.X / 256, missionOverride.Coords.Y / 256,
+			missionOverride.Mission, missionOverride.Caller, frameDigits, missionOverride.Frame);
 	}
 
 	fprintf(pLogFile, "\n");
@@ -356,6 +433,16 @@ DEFINE_HOOK(0x64736D, Queue_AI_WriteDesyncLog, 0x5)
 {
 	GET(int, frame, ECX);
 
+	// Augment the frame CRC with Phobos extension data before it's logged/compared.
+	SyncCRC::AugmentCurrentFrameCRC();
+
+	// Take final checkpoint for this frame.
+	if (!Phobos::Optimizations::DisableSyncLogging)
+	{
+		if (Game::EnableMPSyncDebug || SyncCRC::IsSlotActiveThisFrame(5))
+			SyncCRC::TakeCheckpoint("QueueAI_Desync");
+	}
+
 	char logFilename[0x40];
 
 	if (Game::EnableMPSyncDebug)
@@ -365,14 +452,31 @@ DEFINE_HOOK(0x64736D, Queue_AI_WriteDesyncLog, 0x5)
 
 	SyncLogger::WriteSyncLog(logFilename);
 
+	// Save the RNG state before calling the Ares sync writer, which internally
+	// calls Random2Class::operator()() and pollutes the game RNG state.
+	// This contamination makes RNG entries in sync logs harder to analyze.
+	Randomizer savedRandom = ScenarioClass::Instance->Random;
+
 	// Replace overridden instructions.
 	CALL(0x6BEC60);
+
+	// Restore the RNG state so sync log records aren't contaminated.
+	ScenarioClass::Instance->Random = savedRandom;
 
 	return 0x647372;
 }
 
 DEFINE_HOOK(0x64CD11, ExecuteDoList_WriteDesyncLog, 0x8)
 {
+	// Take a checkpoint at the point of desync detection via DoList execution.
+	if (!Phobos::Optimizations::DisableSyncLogging)
+	{
+		SyncCRC::AugmentCurrentFrameCRC();
+
+		if (Game::EnableMPSyncDebug || SyncCRC::IsSlotActiveThisFrame(6))
+			SyncCRC::TakeCheckpoint("ExecuteDoList_Desync");
+	}
+
 	char logFilename[0x40];
 
 	if (Game::EnableMPSyncDebug)
