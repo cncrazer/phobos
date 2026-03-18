@@ -4,6 +4,7 @@
 #include <AircraftClass.h>
 #include <InfantryClass.h>
 #include <HouseClass.h>
+#include <ScenarioClass.h>
 #include <Unsorted.h>
 #include <ScriptClass.h>
 
@@ -451,8 +452,16 @@ DEFINE_HOOK(0x64736D, Queue_AI_WriteDesyncLog, 0x5)
 
 	SyncLogger::WriteSyncLog(logFilename);
 
+	// Save the RNG state before calling the Ares sync writer, which internally
+	// calls Random2Class::operator()() and pollutes the game RNG state.
+	// This contamination makes RNG entries in sync logs harder to analyze.
+	Randomizer savedRandom = ScenarioClass::Instance->Random;
+
 	// Replace overridden instructions.
 	CALL(0x6BEC60);
+
+	// Restore the RNG state so sync log records aren't contaminated.
+	ScenarioClass::Instance->Random = savedRandom;
 
 	return 0x647372;
 }
