@@ -266,6 +266,17 @@ DEFINE_HOOK(0x55B4E1, LogicClass_Update_BeforeAll, 0x5)
 			SyncCRC::TakeCheckpoint("FrameStart");
 	}
 
+	// Stress test: run full sync CRC computation 1000 times per frame.
+	// Runs in all modes (including skirmish) for uncapped FPS benchmarking.
+	// for (int i = 0; i < 1000; i++)
+	// {
+	// 	 CRCEngine crc {};
+	// 	 crc(EventClass::CurrentFrameCRC);
+	// 	 crc(ScenarioClass::Instance->Random.Next1);
+	// 	 crc(ScenarioClass::Instance->Random.Next2);
+	// 	 SyncCRC::ComputePhobosExtensionCRC(crc);
+	// }
+
 	VeinholeMonsterClass::UpdateAllVeinholes();
 
 	ScenarioExt::Global()->UpdateAutoDeathObjectsInLimbo();
