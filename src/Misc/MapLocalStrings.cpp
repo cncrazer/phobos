@@ -47,55 +47,41 @@ void MapLocalStrings::Apply(const std::map<std::string, std::wstring>& labels) {
         std::memcpy(NewExtraValues, OrigExtraValues, sizeof(char*) * OrigValueCount);
     }
 
-    // Prepare to append values at the end; maintain sorted order of labels by Name.
+    // Append our map-local labels and values
+    int labelIdx = OrigLabelCount;
     int valueIdx = OrigValueCount;
-    int currentLabelCount = OrigLabelCount; // labels actually used in NewLabels
 
     OwnedTexts.reserve(OwnedTexts.size() + labels.size());
 
-    auto insertLabelSorted = [&](const CSFLabel& lbl) {
-        // Find insertion point using linear search (label count small); fall back to end.
-        int pos = 0;
-        while (pos < currentLabelCount) {
-            if (std::strcmp(lbl.Name, NewLabels[pos].Name) <= 0) {
-                break;
-            }
-            ++pos;
-        }
-        if (pos < currentLabelCount) {
-            // Shift existing labels one position to the right
-            std::memmove(&NewLabels[pos + 1], &NewLabels[pos], sizeof(CSFLabel) * (currentLabelCount - pos));
-            NewLabels[pos] = lbl;
-        } else {
-            NewLabels[currentLabelCount] = lbl;
-        }
-        ++currentLabelCount;
-    };
-
     for (const auto& kv : labels) {
+        // Prepare CSFLabel
         CSFLabel lbl{};
+        // Copy name (max 31 chars + nul). Engine uses 31-char label names.
         std::memset(lbl.Name, 0, sizeof(lbl.Name));
         if (!kv.first.empty()) {
+            // Truncate to 31
             std::strncpy(lbl.Name, kv.first.c_str(), sizeof(lbl.Name) - 1);
         }
         lbl.NumValues = 1;
         lbl.FirstValueIndex = valueIdx;
 
-        // Store value at append position
+        // Store value
         wchar_t* w = dup_wide(kv.second);
         OwnedTexts.push_back(w);
-        NewValues[valueIdx] = w;
-        NewExtraValues[valueIdx] = nullptr;
-        ++valueIdx;
 
-        insertLabelSorted(lbl);
+        NewLabels[labelIdx] = lbl;
+        NewValues[valueIdx] = w;
+        NewExtraValues[valueIdx] = nullptr; // no speech for map-local entries
+
+        ++labelIdx;
+        ++valueIdx;
     }
 
-    // Publish to the engine with updated counts
+    // Publish to the engine
     StringTable::Labels = NewLabels;
     StringTable::Values = NewValues;
     StringTable::ExtraValues = NewExtraValues;
-    StringTable::LabelCount = currentLabelCount;
+    StringTable::LabelCount = labelIdx;
     StringTable::ValueCount = valueIdx;
 
     Applied = true;
