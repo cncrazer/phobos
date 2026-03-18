@@ -1666,6 +1666,11 @@ msgid "Fix the bug that unit will play crashing voice & sound when dropped by "
 "warhead with `IsLocomotor=yes`"
 msgstr "修复了载具被 `IsLocomotor=yes` 的弹头丢下时会播放坠毁语音和音效的 Bug"
 
+msgid ""
+"Add toggle of whether shield use ArmorMultiplier or not"
+msgstr ""
+"添加了护盾是否使用护甲倍率的开关"
+
 msgid "**Apollo** - Translucent SHP drawing patches"
 msgstr "**Apollo** - 半透明 SHP 绘制补丁"
 
