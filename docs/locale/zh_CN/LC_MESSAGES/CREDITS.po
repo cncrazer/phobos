@@ -1687,6 +1687,13 @@ msgid ""
 "and crash on ground when killed in air"
 msgstr "修复了 `NotHuman=yes` 的空降步兵在空中被击杀时会无视 `Crashable=no` 坠落到地面的 Bug"
 
+msgid ""
+"Fix an issue where a unit might cause the target to fall from above its "
+"own head when using a locomotor warhead with `Locomotor=Jumpjet` to pull "
+"a target with `BalloonHover=yes`"
+msgstr ""
+"修复了单位使用 `Locomotor=Jumpjet` 的运动模式弹头牵引拥有 `BalloonHover=yes` 的目标时可能使其从自己头顶下落的问题"
+
 msgid "**Apollo** - Translucent SHP drawing patches"
 msgstr "**Apollo** - 半透明 SHP 绘制补丁"
 
