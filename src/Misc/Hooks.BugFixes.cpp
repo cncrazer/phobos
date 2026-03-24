@@ -2874,6 +2874,25 @@ DEFINE_HOOK(0x4DB874, FootClass_SetLocation_Extra, 0xA)
 	return SkipGameCode;
 }
 
+// Clean up dead aircraft stuck off-map after crash descent fails outside map bounds.
+// FlyLocomotionClass guards crash position updates with an In_Radar check, so aircraft
+// that die off-map never complete descent and never reach the UnInit() at the end of it.
+DEFINE_HOOK(0x414DB6, AircraftClass_Update_CrashingOffMap, 0x6)
+{
+	enum { ExitFunction = 0x4151B0 };
+
+	GET(AircraftClass* const, pThis, ESI);
+
+	if (pThis->IsCrashing && pThis->Health <= 0
+		&& !MapClass::Instance.IsWithinUsableArea(pThis->GetCoords()))
+	{
+		pThis->UnInit();
+		return ExitFunction;
+	}
+
+	return 0;
+}
+
 DEFINE_HOOK(0x4DEC7F, FootClass_Crash_FallingDownFix, 0x7)
 {
 	GET(FootClass*, pThis, ESI);
