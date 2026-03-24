@@ -78,6 +78,8 @@ public:
 	bool Load(PhobosStreamReader& Stm, bool RegisterForChange);
 	bool Save(PhobosStreamWriter& Stm) const;
 
+	friend class SyncCRC;
+
 private:
 	template <typename T>
 	bool Serialize(T& Stm);

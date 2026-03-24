@@ -106,3 +106,25 @@ DEFINE_HOOK(0x483C79, CellClass_Save_Suffix, 0x6)
 	CellExt::ExtMap.SaveStatic();
 	return 0;
 }
+
+// Multiplayer
+DEFINE_HOOK(0x4A1BE8, CrateClass_GetCrate_FixLandType, 0x7)
+{
+	GET(CellClass*, pCell, EBX);
+
+	pCell->OverlayData = 0;
+	pCell->RecalcAttributes(DWORD(-1));
+
+	return 0;
+}
+
+// Campaign
+DEFINE_HOOK(0x56C1D3, MapClass_RemoveCrate_Campaign_FixLandType, 0x7)
+{
+	GET(CellClass*, pCell, EBX);
+
+	pCell->OverlayData = 0;
+	pCell->RecalcAttributes(DWORD(-1));
+
+	return 0;
+}

@@ -42,6 +42,8 @@ public:
 	static int DetachByGroups(TechnoClass* pTarget, AEAttachInfoTypeClass const& attachEffectInfo);
 	static void TransferAttachedEffects(TechnoClass* pSource, TechnoClass* pTarget);
 
+	friend class SyncCRC;
+
 private:
 	void OnlineCheck();
 	void CloakCheck();
