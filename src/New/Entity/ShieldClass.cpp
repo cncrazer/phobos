@@ -1,16 +1,8 @@
 #include "ShieldClass.h"
 
 #include <Ext/Anim/Body.h>
-#include <Ext/Rules/Body.h>
 #include <Ext/Techno/Body.h>
-#include <Ext/TechnoType/Body.h>
 #include <Ext/WarheadType/Body.h>
-
-#include <Utilities/GeneralUtils.h>
-#include <AnimClass.h>
-#include <HouseClass.h>
-#include <RadarEventClass.h>
-#include <TacticalClass.h>
 
 std::vector<ShieldClass*> ShieldClass::Array;
 
@@ -191,7 +183,7 @@ int ShieldClass::ReceiveDamage(args_ReceiveDamage* args)
 	auto const pWHExt = WarheadTypeExt::ExtMap.Find(pWH);
 	const bool IC = pWHExt->CanAffectInvulnerable(pTechno);
 
-	if (!IC || CanBePenetrated(pWH) || TechnoExt::IsTypeImmune(pTechno, args->Attacker))
+	if (!IC || this->CanBePenetrated(pWH) || TechnoExt::IsTypeImmune(pTechno, args->Attacker))
 		return damage;
 
 	auto const pTechnoType = pTechno->GetTechnoType();
@@ -202,14 +194,32 @@ int ShieldClass::ReceiveDamage(args_ReceiveDamage* args)
 	int nDamage = 0;
 	int shieldDamage = 0;
 	int healthDamage = 0;
+	double armorMultiplier = 1.0;
 	auto const pType = this->Type;
 
 	if (pWHExt->CanTargetHouse(args->SourceHouse, pTechno) && !pWH->Temporal)
 	{
-		if (damage > 0)
-			nDamage = MapClass::GetTotalDamage(damage, pWH, this->GetArmorType(pTechnoType), args->DistanceToEpicenter);
+		if (damage >= 0)
+		{
+			nDamage = damage;
+
+			if (pType->ApplyArmorMult.Get(RulesExt::Global()->ShieldApplyArmorMult))
+			{
+				armorMultiplier = pTechno->Owner->GetArmorMultiplier(pTechnoType) * pTechno->ArmorMultiplier;
+
+				if (pTechno->HasAbility(Ability::Stronger))
+					armorMultiplier *= RulesClass::Instance->VeteranArmor;
+
+				armorMultiplier *= TechnoExt::CalculateArmorMultipliers(pTechno, pWH);
+				nDamage = Math::max(static_cast<int>(nDamage / armorMultiplier), 0);
+			}
+
+			nDamage = MapClass::GetTotalDamage(nDamage, pWH, this->GetArmorType(pTechnoType), args->DistanceToEpicenter);
+		}
 		else
+		{
 			nDamage = -MapClass::GetTotalDamage(-damage, pWH, this->GetArmorType(pTechnoType), args->DistanceToEpicenter);
+		}
 
 		const bool affectsShield = pWHExt->Shield_AffectTypes.size() <= 0 || pWHExt->Shield_AffectTypes.Contains(pType);
 		const double absorbPercent = affectsShield ? pWHExt->Shield_AbsorbPercent.Get(pType->AbsorbPercent) : pType->AbsorbPercent;
@@ -261,12 +271,17 @@ int ShieldClass::ReceiveDamage(args_ReceiveDamage* args)
 
 		if (residueDamage >= 0)
 		{
-			const int actualResidueDamage = Math::max(0, int((double)(originalShieldDamage - health) /
+			if (pType->AbsorbOverDamage)
+			{
+				this->BreakShield(pWHExt->Shield_BreakAnim, pWHExt->Shield_BreakWeapon.Get(nullptr));
+				return healthDamage;
+			}
+
+			const int actualResidueDamage = Math::max(0, int((double)(originalShieldDamage - health) * armorMultiplier /
 				GeneralUtils::GetWarheadVersusArmor(pWH, this->GetArmorType(pTechnoType)))); //only absord percentage damage
 
 			this->BreakShield(pWHExt->Shield_BreakAnim, pWHExt->Shield_BreakWeapon.Get(nullptr));
-
-			return pType->AbsorbOverDamage ? healthDamage : actualResidueDamage + healthDamage;
+			return actualResidueDamage + healthDamage;
 		}
 		else
 		{
@@ -952,26 +967,6 @@ AnimTypeClass* ShieldClass::GetIdleAnimType()
 	return pType->GetIdleAnimType(isDamaged, this->GetHealthRatio());
 }
 
-bool ShieldClass::IsGreenSP()
-{
-	auto const pType = this->Type;
-	return pType->GetConditionYellow() * pType->Strength.Get() < this->HP;
-}
-
-bool ShieldClass::IsYellowSP()
-{
-	auto const pType = this->Type;
-	const int health = this->HP;
-	const int strength = pType->Strength.Get();
-	return pType->GetConditionRed() * strength < health && health <= pType->GetConditionYellow() * strength;
-}
-
-bool ShieldClass::IsRedSP()
-{
-	auto const pType = this->Type;
-	return this->HP <= pType->GetConditionYellow() * pType->Strength.Get();
-}
-
 void ShieldClass::DrawShieldBar_Building(const int length, RectangleStruct* pBound)
 {
 	if (this->HP <= 0 && this->Type->Pips_HideIfNoStrength)
@@ -1095,18 +1090,13 @@ ArmorType ShieldClass::GetArmorType(TechnoTypeClass* pTechnoType) const
 			pTechnoType = pTechno->GetTechnoType();
 
 		if (pShieldType->InheritArmor_Allowed.empty() || pShieldType->InheritArmor_Allowed.Contains(pTechnoType)
-			&& (pShieldType->InheritArmor_Disallowed.empty() || !pShieldType->InheritArmor_Disallowed.Contains(pTechnoType)))
+			&& !pShieldType->InheritArmor_Disallowed.Contains(pTechnoType))
 		{
 			return pTechnoType->Armor;
 		}
 	}
 
 	return pShieldType->Armor.Get();
-}
-
-int ShieldClass::GetFramesSinceLastBroken() const
-{
-	return Unsorted::CurrentFrame - this->LastBreakFrame;
 }
 
 void ShieldClass::SetAnimationVisibility(bool visible)

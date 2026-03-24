@@ -1,6 +1,5 @@
 #include "LaserTrailClass.h"
 
-#include <Utilities/TemplateDef.h>
 #include <Ext/EBolt/Body.h>
 
 // Draws LaserTrail if the conditions are suitable.
@@ -11,13 +10,14 @@ bool LaserTrailClass::Update(CoordStruct location)
 		return false;
 
 	bool result = false;
+	const int segmentLength = this->Type->SegmentLength;
 
 	if (!this->LastLocation.isset())
 	{
 		// The trail was just inited
 		this->LastLocation = location;
 	}
-	else if (location.DistanceFrom(this->LastLocation.Get()) > this->Type->SegmentLength) // TODO reimplement IgnoreVertical properly?
+	else if (location.DistanceFromSquared(this->LastLocation.Get()) > segmentLength * segmentLength) // TODO reimplement IgnoreVertical properly?
 	{
 		auto const pType = this->Type;
 
