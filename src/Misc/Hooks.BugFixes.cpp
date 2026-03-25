@@ -2880,14 +2880,18 @@ DEFINE_HOOK(0x4DB874, FootClass_SetLocation_Extra, 0xA)
 // (or reach their destination), so the cleanup code (fire death weapon, UnInit) never runs.
 // The fix: at each locomotor's height/health check, treat off-map as ground-touch.
 // FlyLocomotionClass::Process - height check after crash descent calculation.
-// If off-map, skip the height > 0 check and go straight to ground-touch cleanup.
+// If off-map and crashing, skip the height > 0 check and go straight to ground-touch cleanup.
+// The IsCrashing guard is needed because healthy non-moving airborne aircraft also reach this
+// code path (Is_Moving()==false && Height>0) and must not be sent to cleanup.
 DEFINE_HOOK(0x4CD797, FlyLocomotionClass_CrashDescent_OffMap, 0x5)
 {
 	enum { GroundTouchCleanup = 0x4CD7AA };
 
 	GET(FlyLocomotionClass*, pThis, ESI);
 
-	if (!MapClass::Instance.IsWithinUsableArea(pThis->LinkedTo->GetCoords()))
+	const auto pLinkedTo = pThis->LinkedTo;
+
+	if (pLinkedTo->IsCrashing && !MapClass::Instance.IsWithinUsableArea(pLinkedTo->GetCoords()))
 		return GroundTouchCleanup;
 
 	return 0;
@@ -2905,7 +2909,7 @@ DEFINE_HOOK(0x54CC16, JumpjetLocomotionClass_CrashDescent_OffMap, 0x8)
 	{
 		// Replicate the stack init from the stolen bytes (mov byte ptr [esp+21h], 0)
 		// so the "fell on something" flag is properly zeroed for the crash path.
-		REF_STACK(BYTE, fellOnSomething, 0x21);
+		REF_STACK(BYTE, fellOnSomething, STACK_OFFSET(0x34, -0x13));
 		fellOnSomething = 0;
 		return IsCrashingCheck;
 	}
