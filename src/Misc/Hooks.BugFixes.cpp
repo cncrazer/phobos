@@ -2885,7 +2885,7 @@ DEFINE_HOOK(0x4CD797, FlyLocomotionClass_CrashDescent_OffMap, 0x5)
 {
 	enum { GroundTouchCleanup = 0x4CD7AA };
 
-	GET(LocomotionClass*, pThis, ESI);
+	GET(FlyLocomotionClass*, pThis, ESI);
 
 	if (!MapClass::Instance.IsWithinUsableArea(pThis->LinkedTo->GetCoords()))
 		return GroundTouchCleanup;
@@ -2899,7 +2899,7 @@ DEFINE_HOOK(0x54CC16, JumpjetLocomotionClass_CrashDescent_OffMap, 0x8)
 {
 	enum { IsCrashingCheck = 0x54CC36 };
 
-	GET(LocomotionClass*, pThis, EDI);
+	GET(JumpjetLocomotionClass*, pThis, EDI);
 
 	if (!MapClass::Instance.IsWithinUsableArea(pThis->LinkedTo->GetCoords()))
 	{
@@ -2919,7 +2919,7 @@ DEFINE_HOOK(0x662FD5, RocketLocomotionClass_Process_OffMap, 0x6)
 {
 	enum { ForceCleanup = 0x662FDF };
 
-	GET(LocomotionClass*, pThis, EDI);
+	GET(RocketLocomotionClass*, pThis, EDI);
 
 	if (!MapClass::Instance.IsWithinUsableArea(pThis->LinkedTo->GetCoords()))
 		return ForceCleanup;
