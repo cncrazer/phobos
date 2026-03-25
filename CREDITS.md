@@ -775,4 +775,4 @@ This page lists all the individual contributions to the project by their author.
   - Wall overlay unit sell exploit fix
   - Multiplayer gamespeed fix for RealTimeTimers
   - Revert Ares patch to allow OpenTopped transport customization
-  - Fix for aircraft destroyed while crashing off-map not being cleaned up
+  - Fix for units with Fly, Jumpjet or Rocket locomotors crashing off-map not being cleaned up
