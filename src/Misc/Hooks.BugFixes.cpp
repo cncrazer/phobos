@@ -2907,9 +2907,9 @@ DEFINE_HOOK(0x54CC16, JumpjetLocomotionClass_CrashDescent_OffMap, 0x8)
 
 	if (!MapClass::Instance.IsWithinUsableArea(pThis->LinkedTo->GetCoords()))
 	{
-		// Replicate the stack init from the stolen bytes (mov byte ptr [esp+21h], 0)
+		// Replicate the stack init from the stolen bytes (mov byte ptr [esp+11h], 0)
 		// so the "fell on something" flag is properly zeroed for the crash path.
-		REF_STACK(BYTE, fellOnSomething, STACK_OFFSET(0x34, -0x13));
+		REF_STACK(BYTE, fellOnSomething, STACK_OFFSET(0x34, -0x23));
 		fellOnSomething = 0;
 		return IsCrashingCheck;
 	}
