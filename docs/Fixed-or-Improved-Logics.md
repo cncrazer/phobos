@@ -314,6 +314,7 @@ This page describes all ingame logics that are fixed or improved in Phobos witho
 - Fixed the bug where paradropped infantry with `NotHuman=yes` will ignore `Crashable=no` and crash on ground when killed in air.
 - Fixed an issue where a unit might cause the target to fall from above its own head when using a locomotor warhead with `Locomotor=Jumpjet` to pull a target with `BalloonHover=yes`.
 - Fixed the [EIP#007120F7](https://modenc.renegadeprojects.com/Internal_Error#eip_007120F7) that was triggered when repairing because the `Strength` value was lower than `RepairStep`.
+- Fixed the bug where non-Teleporter miners would not return to work after minerals are depleted and then regenerated.
 
 ## Fixes / interactions with other extensions
 
