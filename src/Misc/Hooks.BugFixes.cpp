@@ -443,7 +443,7 @@ DEFINE_HOOK(0x54D138, JumpjetLocomotionClass_Movement_AI_SpeedModifiers, 0x6)
 	GET(JumpjetLocomotionClass*, pThis, ESI);
 
 	const double multiplier = TechnoExt::GetCurrentSpeedMultiplier(pThis->LinkedTo);
-	pThis->Speed = (int)(pThis->LinkedTo->GetTechnoType()->JumpjetSpeed * multiplier);
+	pThis->Speed = static_cast<int>(TechnoExt::ExtMap.Find(pThis->LinkedTo)->JumpjetSpeed * multiplier);
 
 	return 0;
 }
@@ -3316,4 +3316,19 @@ DEFINE_FUNCTION_JUMP(CALL6, 0x710326, _ImbueLocomotor_SetDestination)
 DEFINE_HOOK(0x54B3E7, JumpjetLocomotionClass_Move_To_LocomotorWarheadFix, 0x5)
 {
 	return ImbueLocomotorTemp::Imbuing ? 0x54B3FC : 0;
+}
+
+DEFINE_HOOK(0x7120DD, TechnoTypeClass_GetRepairStepCost, 0x6)
+{
+	enum { SkipGameCode = 0x71210C };
+
+	GET(TechnoTypeClass*, pType, ESI);
+	GET(int, cost, EAX);
+
+	if (RulesExt::Global()->FixRepairStepCost)
+		R->EAX(static_cast<int>((cost / std::max(static_cast<double>(pType->Strength) / RulesClass::Instance->RepairStep, 1.0)) * RulesClass::Instance->RepairPercent));
+	else
+		R->EAX(static_cast<int>((cost / std::max(pType->Strength / RulesClass::Instance->RepairStep, 1))* RulesClass::Instance->RepairPercent));
+
+	return SkipGameCode;
 }
