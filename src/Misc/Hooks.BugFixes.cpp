@@ -443,7 +443,7 @@ DEFINE_HOOK(0x54D138, JumpjetLocomotionClass_Movement_AI_SpeedModifiers, 0x6)
 	GET(JumpjetLocomotionClass*, pThis, ESI);
 
 	const double multiplier = TechnoExt::GetCurrentSpeedMultiplier(pThis->LinkedTo);
-	pThis->Speed = (int)(pThis->LinkedTo->GetTechnoType()->JumpjetSpeed * multiplier);
+	pThis->Speed = static_cast<int>(TechnoExt::ExtMap.Find(pThis->LinkedTo)->JumpjetSpeed * multiplier);
 
 	return 0;
 }
@@ -2855,6 +2855,95 @@ DEFINE_HOOK(0x4DAD06, FootClass_AI_IsCrashing_VoiceAndSound, 0xA)
 	return ContinueAfter;
 }
 
+DEFINE_HOOK(0x4DB874, FootClass_SetLocation_Extra, 0xA)
+{
+	enum { SkipGameCode = 0x4DB88F };
+
+	GET(FootClass*, pThis, ESI);
+	const auto pParasite = pThis->ParasiteEatingMe;
+
+	// Fix Ares's bug that parasite always on victim's location
+	if (pParasite && pParasite->InLimbo)
+		pParasite->SetLocation(pThis->Location);
+
+	// Restore overriden instructions
+	if (pThis->GetTechnoType()->OpenTopped)
+		pThis->UpdatePassengerCoords();
+
+	// Skip Ares's hook
+	return SkipGameCode;
+}
+
+// Fix crash descent for aircraft/units off-map.
+// In all three locomotors below, MapClass::In_Radar blocks position/coordinate updates
+// when outside the map. This means crashing units off-map never descend to ground level
+// (or reach their destination), so the cleanup code (fire death weapon, UnInit) never runs.
+// The fix: at each locomotor's height/health check, treat off-map as ground-touch.
+// FlyLocomotionClass::Process - height check after crash descent calculation.
+// If off-map and crashing, skip the height > 0 check and go straight to ground-touch cleanup.
+// The IsCrashing guard is needed because healthy non-moving airborne aircraft also reach this
+// code path (Is_Moving()==false && Height>0) and must not be sent to cleanup.
+DEFINE_HOOK(0x4CD797, FlyLocomotionClass_CrashDescent_OffMap, 0x5)
+{
+	enum { GroundTouchCleanup = 0x4CD7AA };
+
+	GET(FlyLocomotionClass*, pThis, ESI);
+
+	const auto pLinkedTo = pThis->LinkedTo;
+
+	if (pLinkedTo->IsCrashing && !MapClass::Instance.IsWithinUsableArea(pLinkedTo->GetCoords()))
+		return GroundTouchCleanup;
+
+	return 0;
+}
+
+// JumpjetLocomotionClass::Process - height check before IsCrashing gate.
+// If off-map, skip height check and go to the IsCrashing check directly.
+DEFINE_HOOK(0x54CC16, JumpjetLocomotionClass_CrashDescent_OffMap, 0x8)
+{
+	enum { IsCrashingCheck = 0x54CC36 };
+
+	GET(JumpjetLocomotionClass*, pThis, EDI);
+
+	if (!MapClass::Instance.IsWithinUsableArea(pThis->LinkedTo->GetCoords()))
+	{
+		// Replicate the stack init from the stolen bytes (mov byte ptr [esp+11h], 0)
+		// so the "fell on something" flag is properly zeroed for the crash path.
+		REF_STACK(BYTE, fellOnSomething, STACK_OFFSET(0x34, -0x23));
+		fellOnSomething = 0;
+		return IsCrashingCheck;
+	}
+
+	return 0;
+}
+
+// RocketLocomotionClass::Process - health check after position update.
+// If off-map, bypass the Health > 0 skip and force detonation/cleanup.
+DEFINE_HOOK(0x662FD5, RocketLocomotionClass_Process_OffMap, 0x6)
+{
+	enum { ForceCleanup = 0x662FDF };
+
+	GET(RocketLocomotionClass*, pThis, EDI);
+
+	if (!MapClass::Instance.IsWithinUsableArea(pThis->LinkedTo->GetCoords()))
+		return ForceCleanup;
+
+	return 0;
+}
+
+DEFINE_HOOK(0x4DEC7F, FootClass_Crash_FallingDownFix, 0x7)
+{
+	GET(FootClass*, pThis, ESI);
+
+	if (pThis->IsFallingDown && !pThis->IsABomb && pThis->Locomotor)
+	{
+		if (const auto pJumpjet = locomotion_cast<JumpjetLocomotionClass*>(pThis->Locomotor))
+			pJumpjet->State = JumpjetLocomotionClass::State::Crashing;
+	}
+
+	return 0;
+}
+
 #pragma region ClearTargetOnOwnerChanged
 
 DEFINE_HOOK(0x70D4A0, AbstractClass_ClearTargetToMe_ClearManagerTarget, 0x5)
@@ -3124,6 +3213,9 @@ DEFINE_HOOK(0x4D4221, FootClass_MissionMove_EndCheckFix2, 0x6)
 	return 0x4D422D;
 }
 
+// Skip incorrect mission queued in InfantryClass::EnterIdleMode
+DEFINE_JUMP(LJMP, 0x51CBE5, 0x51CC1F);
+
 #pragma region SetHealthPercentageFix
 
 DEFINE_HOOK(0x5F5C80, ObjectClass_SetHealthPercentage_Round, 0xA)
@@ -3206,3 +3298,182 @@ DEFINE_HOOK(0x706F64, TechnoClass_RenderVoxelObject_SkipInvisibleSections, 0x0)
 	R->EAX(frame);
 	return 0x706F6F;
 }
+
+// https://modenc.renegadeprojects.com/IsLocomotor
+// The natural landing position of the affected unit is controlled by its own pathfinding rules.
+// This means that if the target is a unit that can originally move to the firer's cell, such as the original [ZEP],
+// it will be attracted directly above the firer, then fall vertically to crush the firer while being destroyed itself.
+namespace ImbueLocomotorTemp
+{
+	bool Imbuing = false;
+}
+
+static void __fastcall _ImbueLocomotor_SetDestination(FootClass* pThis, void*, AbstractClass* pDest, bool unk)
+{
+	ImbueLocomotorTemp::Imbuing = true;
+	pThis->SetDestination(pDest, true);
+	ImbueLocomotorTemp::Imbuing = false;
+}
+DEFINE_FUNCTION_JUMP(CALL6, 0x710326, _ImbueLocomotor_SetDestination)
+
+DEFINE_HOOK(0x54B3E7, JumpjetLocomotionClass_Move_To_LocomotorWarheadFix, 0x5)
+{
+	return ImbueLocomotorTemp::Imbuing ? 0x54B3FC : 0;
+}
+
+DEFINE_HOOK(0x7120DD, TechnoTypeClass_GetRepairStepCost, 0x6)
+{
+	enum { SkipGameCode = 0x71210C };
+
+	GET(TechnoTypeClass*, pType, ESI);
+	GET(const int, cost, EAX);
+
+	if (RulesExt::Global()->FixRepairStepCost)
+		R->EAX(static_cast<int>((cost / std::max(static_cast<double>(pType->Strength) / RulesClass::Instance->RepairStep, 1.0)) * RulesClass::Instance->RepairPercent));
+	else
+		R->EAX(static_cast<int>((cost / std::max(pType->Strength / RulesClass::Instance->RepairStep, 1))* RulesClass::Instance->RepairPercent));
+
+	return SkipGameCode;
+}
+
+#pragma region ShroudFix
+
+// These map cells are what SpySat skips revealing in MP normally.
+static bool inline ShroudFix_IsCellInvalid(CellStruct* pMapCell)
+{
+	const int x = pMapCell->X;
+	const int y = pMapCell->Y;
+	auto const& rect = MapClass::Instance.MapRect;
+
+	if (x == 7 && y == rect.Width + 5)
+		return true;
+
+	if (x == 13 && y == rect.Width + 11)
+		return true;
+
+	if (x == rect.Height + 13 && y == rect.Width + rect.Height - 15)
+		return true;
+
+	return false;
+}
+
+DEFINE_HOOK(0x6FB5E5, TechnoClass_DeleteGap_CellCheck, 0x5)
+{
+	enum { SkipCell = 0x6FB6F3 };
+
+	GET(CellStruct*, pMapCell, EDX);
+
+	if (ShroudFix_IsCellInvalid(pMapCell))
+		return SkipCell;
+
+	return 0;
+}
+
+DEFINE_HOOK(0x6FB2FB, TechnoClass_CreateGap_CellCheck, 0x5)
+{
+	enum { SkipCell = 0x6FB416 };
+
+	GET(CellStruct*, pMapCell, EDX);
+
+	if (ShroudFix_IsCellInvalid(pMapCell))
+		return SkipCell;
+
+	return 0;
+}
+
+// Replace the entire cell iterator loop for perf reasons.
+DEFINE_HOOK(0x577AFF, MapClass_ResetShroud_CellCheck, 0x6)
+{
+	enum { SkipGameCode = 0x577B75 };
+
+	auto& map = MapClass::Instance;
+	map.CellIteratorReset();
+
+	for (auto pCell = map.CellIteratorNext(); pCell; pCell = map.CellIteratorNext())
+	{
+		if (ShroudFix_IsCellInvalid(&pCell->MapCoords))
+			continue;
+
+		pCell->Flags &= ~(CellFlags::CenterRevealed | CellFlags::EdgeRevealed);
+		pCell->AltFlags &= ~(AltCellFlags::Mapped | AltCellFlags::NoFog);
+		pCell->ShroudCounter = 1;
+		pCell->GapsCoveringThisCell = 0;
+	}
+
+	return SkipGameCode;
+}
+
+// Replace the entire cell iterator loop for perf reasons.
+DEFINE_HOOK(0x577BF1, MapClass_ResetShroudForTMission_CellCheck, 0x6)
+{
+	enum { SkipGameCode = 0x577C57 };
+
+	auto& map = MapClass::Instance;
+	map.CellIteratorReset();
+
+	for (auto pCell = map.CellIteratorNext(); pCell; pCell = map.CellIteratorNext())
+	{
+		if (ShroudFix_IsCellInvalid(&pCell->MapCoords))
+			continue;
+
+		pCell->Flags &= ~(CellFlags::CenterRevealed | CellFlags::EdgeRevealed);
+		pCell->AltFlags &= ~(AltCellFlags::Mapped | AltCellFlags::NoFog);
+	}
+
+	return SkipGameCode;
+}
+
+#pragma endregion
+
+
+#pragma region BalloonHoverPathingFix
+
+DEFINE_HOOK(0x64D592, Game_PreProcessMegaMissionList_CheckForTargetCrdRecal1, 0x6)
+{
+	enum { SkipTargetCrdRecal = 0x64D598 };
+	GET(TechnoClass*, pTechno, EBP);
+	return pTechno->GetTechnoType()->BalloonHover ? SkipTargetCrdRecal : 0;
+}
+
+DEFINE_HOOK(0x64D575, Game_PreProcessMegaMissionList_CheckForTargetCrdRecal2, 0x6)
+{
+	enum { SkipTargetCrdRecal = 0x64D598 };
+	GET(TechnoClass*, pTechno, EBP);
+	return pTechno->GetTechnoType()->BalloonHover ? SkipTargetCrdRecal : 0;
+}
+
+DEFINE_HOOK(0x64D5C5, Game_PreProcessMegaMissionList_CheckForTargetCrdRecal3, 0x6)
+{
+	enum { SkipTargetCrdRecal = 0x64D659 };
+	GET(TechnoClass*, pTechno, EBP);
+	return pTechno->GetTechnoType()->BalloonHover ? SkipTargetCrdRecal : 0;
+}
+
+DEFINE_HOOK(0x51BFA2, InfantryClass_IsCellOccupied_Start, 0x6)
+{
+	enum { MoveOK = 0x51C02D };
+	GET(InfantryClass*, pThis, EBP);
+	return pThis->Type->BalloonHover && pThis->IsInAir() ? MoveOK : 0;
+}
+
+DEFINE_HOOK(0x73F0A7, UnitClass_IsCellOccupied_Start, 0x9)
+{
+	enum { MoveOK = 0x73F23F };
+	GET(UnitClass*, pThis, ECX);
+	return pThis->Type->BalloonHover && pThis->IsInAir() ? MoveOK : 0;
+}
+
+DEFINE_HOOK(0x4D62C0, FootClass_ApproachTarget_CheckArcCell, 0x6)
+{
+	GET(FootClass*, pThis, EBX);
+
+	if (pThis->GetTechnoType()->BalloonHover && pThis->IsInAir())
+	{
+		R->AL(true);
+		return 0x4D6425;
+	}
+
+	return 0;
+}
+
+#pragma endregion

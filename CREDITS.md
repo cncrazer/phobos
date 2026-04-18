@@ -290,6 +290,7 @@ This page lists all the individual contributions to the project by their author.
   - Guard range customizations
   - Wall overlay unit sell exploit fix
   - Fix vehicles disguised as trees incorrectly displaying veterancy insignia when they shouldn't
+  - GapGen + SpySat desync fix
 - **Morton (MortonPL)**:
   - `XDrawOffset` for animations
   - Shield passthrough & absorption
@@ -418,6 +419,7 @@ This page lists all the individual contributions to the project by their author.
   - Fixed an issue where parachute units would die upon landing if bridges were destroyed during their descent
   - Custom hover vehicles shutdown drowning death
   - SHP turret vehicles support the use of `*tur.shp` files
+  - Fix a bug where game will crash after loading if a techno with `AlphaImage` converts to a type without it, or an anim with `AlphaImage` changes to a type without it through `Next`
 - **NetsuNegi**:
   - Forbidding parallel AI queues by type
   - Jumpjet crash speed fix when crashing onto building
@@ -513,6 +515,19 @@ This page lists all the individual contributions to the project by their author.
   - Customize which parasite can remove by warhead
   - Fix the bug that unit will play crashing voice & sound when dropped by warhead with `IsLocomotor=yes`
   - Add toggle of whether shield use ArmorMultiplier or not
+  - Fix an Ares bug that led to erroneous interactions where the parasite would frequently reset to the victim's position under specific circumstances and that was highly prone to crashes
+  - Fix the bug that if paradropping technos with `Crashable=yes` has been destroyed in air, they will falling down on ground but not dead
+  - Fix the bug where paradropped infantry with `NotHuman=yes` will ignore `Crashable=no` and crash on ground when killed in air
+  - Fix an issue where a unit might cause the target to fall from above its own head when using a locomotor warhead with `Locomotor=Jumpjet` to pull a target with `BalloonHover=yes`
+  - Fix the EIP#007120F7 caused when the `Strength` value is lower than `RepairStep`
+  - Allow the use of more precise calculation of repair costs
+  - Fix the initial direction of building placed by Ares's UnitDelivery superweapon
+  - Customize default mirage disguises per vehicletypes
+  - Allow customize jumpjet properties on warhead
+  - Customize effects range of power plant enhancer
+  - Customize whether transport can kept or kill passengers when driver has been killed
+  - Fix a bug where passengers created by the InitialPayload logic or TeamType with `Full=true` would fail to fire when the transport unit with `OpenTopped=yes` moved to an area that the passengers' `MovementZone` cannot move into
+  - Fix a bug where game will crash after loading if a techno with `AlphaImage` converts to a type without it, or an anim with `AlphaImage` changes to a type without it through `Next`
 - **Apollo** - Translucent SHP drawing patches
 - **ststl**:
   - Customizable `ShowTimer` priority of superweapons
@@ -720,12 +735,20 @@ This page lists all the individual contributions to the project by their author.
   - Fix an issue that the move mission of the jumpjet does not end correctly
   - Fix the issue that the Jumpjet must end its movement before starting the next mission
   - Taunt warhead
+  - Fix the bug where non-Teleporter miners would not return to work after minerals are depleted and then regenerated
+  - Miners back to work when ore regenerated
+  - Allow disable an over-optimization in targeting
+  - Extra threat
+  - Fix the incorrect mission switching in infantry EnterIdleMode
+  - Fix the issue that `BombSight` not being updated correctly in techno conversion
+  - Technos with Walk locomotor spawn wake like ship
 - **solar-III (凤九歌)**
   - Target scanning delay customization (documentation)
   - Skip target scanning function calling for unarmed technos (documentation)
 - **Flactine**
   - Add target filtering options to attacheffect system
   - Add veterancy-based target filtering for weapons and warheads
+  - Fix BalloonHover incorrectly considering ground factors when pathfinding
 - **tyuah8**:
   - Drive/Jumpjet/Ship/Teleport locomotor did not power on when it is un-piggybacked bugfix
   - Destroyed unit leaves sensors bugfix
@@ -771,3 +794,4 @@ This page lists all the individual contributions to the project by their author.
   - Wall overlay unit sell exploit fix
   - Multiplayer gamespeed fix for RealTimeTimers
   - Revert Ares patch to allow OpenTopped transport customization
+  - Fix for units with Fly, Jumpjet or Rocket locomotors crashing off-map not being cleaned up

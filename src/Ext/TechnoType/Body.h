@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <Utilities/Container.h>
 #include <Utilities/TemplateDef.h>
 
@@ -156,6 +156,7 @@ public:
 		Valueable<bool> NotHuman_RandomDeathSequence;
 
 		Valueable<InfantryTypeClass*> DefaultDisguise;
+		NullableVector<TerrainTypeClass*> DefaultMirageDisguises;
 		Valueable<bool> UseDisguiseMovementSpeed;
 
 		Nullable<int> OpenTopped_RangeBonus;
@@ -230,6 +231,8 @@ public:
 		Nullable<WarheadTypeClass*> ForceShield_KillWarhead;
 		Valueable<bool> Explodes_KillPassengers;
 		Valueable<bool> Explodes_DuringBuildup;
+		Valueable<bool> DriverKilled_KeptPassengers;
+		Nullable<bool> DriverKilled_KillPassengers;
 		Nullable<int> DeployFireWeapon;
 		Valueable<TargetZoneScanType> TargetZoneScanType;
 
@@ -332,6 +335,7 @@ public:
 		Nullable<AnimTypeClass*> Wake;
 		Nullable<AnimTypeClass*> Wake_Grapple;
 		Nullable<AnimTypeClass*> Wake_Sinking;
+		Nullable<bool> MakesWake;
 
 		Nullable<int> AINormalTargetingDelay;
 		Nullable<int> PlayerNormalTargetingDelay;
@@ -490,6 +494,13 @@ public:
 		Nullable<bool> JumpjetClimbIgnoreBuilding;
 
 		Valueable<bool> HoverDrownable;
+		bool ExtraThreat_Enabled;
+		Nullable<double> ExtraThreat_IsThreat;
+		Valueable<bool> AlwaysConsideredThreat;
+		Nullable<double> ExtraThreat_InRange;
+		Nullable<double> ExtraThreatCoefficient_InRangeDistance;
+		Nullable<double> ExtraThreatCoefficient_Facing;
+		Nullable<double> ExtraThreatCoefficient_DistanceToLastTarget;
 
 		Nullable<bool> Unsellable; // Ares 3.0
 
@@ -696,6 +707,8 @@ public:
 
 			, Explodes_KillPassengers { true }
 			, Explodes_DuringBuildup { true }
+			, DriverKilled_KeptPassengers { false }
+			, DriverKilled_KillPassengers {}
 			, DeployFireWeapon {}
 			, TargetZoneScanType { TargetZoneScanType::Same }
 
@@ -800,6 +813,7 @@ public:
 			, Wake { }
 			, Wake_Grapple { }
 			, Wake_Sinking { }
+			, MakesWake { }
 
 			, AINormalTargetingDelay {}
 			, PlayerNormalTargetingDelay {}
@@ -943,6 +957,13 @@ public:
 			, Unsellable {}
 
 			, TurretShape { nullptr }
+			, ExtraThreat_Enabled { false }
+			, ExtraThreat_IsThreat {}
+			, AlwaysConsideredThreat { false }
+			, ExtraThreat_InRange {}
+			, ExtraThreatCoefficient_InRangeDistance {}
+			, ExtraThreatCoefficient_Facing {}
+			, ExtraThreatCoefficient_DistanceToLastTarget {}
 		{ }
 
 		virtual ~ExtData() = default;
