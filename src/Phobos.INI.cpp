@@ -78,6 +78,9 @@ bool Phobos::Config::HideShakeEffects = true;
 bool Phobos::Config::ShowFlashOnSelecting = false;
 bool Phobos::Config::UnitPowerDrain = false;
 int Phobos::Config::SuperWeaponSidebar_RequiredSignificance = 0;
+int Phobos::Config::LagDetection_BaseThreshold = 3;
+int Phobos::Config::LagDetection_ReducedMaxAhead = 5;
+int Phobos::Config::LagDetection_ResetInterval = 5;
 
 bool Phobos::Misc::CustomGS = false;
 int Phobos::Misc::CustomGS_ChangeInterval[7] = { -1, -1, -1, -1, -1, -1, -1 };
@@ -113,6 +116,11 @@ DEFINE_HOOK(0x5FACDF, OptionsClass_LoadSettings_LoadPhobosSettings, 0x5)
 	Phobos::Config::HideShakeEffects = CCINIClass::INI_RA2MD.ReadBool(phobosSection, "HideShakeEffects", false);
 	Phobos::Config::ShowFlashOnSelecting = CCINIClass::INI_RA2MD.ReadBool(phobosSection, "ShowFlashOnSelecting", false);
 	Phobos::Config::SuperWeaponSidebar_RequiredSignificance = CCINIClass::INI_RA2MD.ReadInteger(phobosSection, "SuperWeaponSidebar.RequiredSignificance", 0);
+
+	// Lag detection settings
+	Phobos::Config::LagDetection_BaseThreshold = CCINIClass::INI_RA2MD.ReadInteger(phobosSection, "LagDetection.BaseThreshold", 3);
+	Phobos::Config::LagDetection_ReducedMaxAhead = CCINIClass::INI_RA2MD.ReadInteger(phobosSection, "LagDetection.ReducedMaxAhead", 5);
+	Phobos::Config::LagDetection_ResetInterval = CCINIClass::INI_RA2MD.ReadInteger(phobosSection, "LagDetection.ResetInterval", 5);
 
 	// Custom game speeds, 6 - i so that GS6 is index 0, just like in the engine
 	Phobos::Config::CampaignDefaultGameSpeed = 6 - CCINIClass::INI_RA2MD.ReadInteger(phobosSection, "CampaignDefaultGameSpeed", 4);
