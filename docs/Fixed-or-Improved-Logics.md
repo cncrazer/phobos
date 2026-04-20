@@ -1276,6 +1276,7 @@ Gas.MaxDriftSpeed=2    ; integer (TS default is 5)
 - `AroundTarget` controls whether or not targets for projectiles created by `Airburst` or `Splits` are checked for in area around the original projectile's intended target, or where the original projectile detonated. Defaults to value of `Splits`.
 - `AirburstWeapon.ApplyFirepowerMult` determines whether or not firepower modifiers from the firer of the original projectile are applied on the projectiles created from `AirburstWeapon`.
 - `AirburstWeapon.SourceScatterMin` and `AirburstWeapon.SourceScatterMax` can be used to scatter the source or 'firing' coordinate around the original coordinate.
+- `AirburstWeapon.UseFiringEffects` if set to true makes `AirburstWeapon` display weapon `Anim` and play `Report` sound if available.
 
 In `rulesmd.ini`:
 ```ini
@@ -1298,6 +1299,7 @@ AroundTarget=                               ; boolean
 AirburstWeapon.ApplyFirepowerMult=false     ; boolean
 AirburstWeapon.SourceScatterMin=0.0         ; floating point value, distance in cells
 AirburstWeapon.SourceScatterMax=0.0         ; floating point value, distance in cells
+AirburstWeapon.UseFiringEffects=false       ; boolean
 ```
 
 ```{note}

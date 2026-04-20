@@ -761,11 +761,12 @@ DEFINE_HOOK(0x469EC0, BulletClass_Logics_AirburstWeapon, 0x6)
 		bool const splits = pTypeExt->Splits;
 		bool const targetAsSource = pTypeExt->Airburst_TargetAsSource;
 		bool const skipHeight = pTypeExt->Airburst_TargetAsSource_SkipHeight;
-		double const retargetAccuracy = pTypeExt->RetargetAccuracy;
+		double const retargetAccuracy = pTypeExt->RetargetAccuracy; 
 		double const retargetSelfProbability = pTypeExt->RetargetSelf_Probability;
 		int const speed = pWeapon->Speed;
 		int const scatterMin = pTypeExt->AirburstWeapon_SourceScatterMin.Get();
 		int const scatterMax = pTypeExt->AirburstWeapon_SourceScatterMax.Get();
+		bool const useFiringEffects = pTypeExt->AirburstWeapon_UseFiringEffects;
 		int cycledTargetIndex = 0;
 
 		if (allowRepeatTargets)
@@ -834,7 +835,7 @@ DEFINE_HOOK(0x469EC0, BulletClass_Logics_AirburstWeapon, 0x6)
 					}
 
 					BulletExt::SimulatedFiringUnlimbo(pBullet, pOwner, pWeapon, coords, true);
-					BulletExt::SimulatedFiringEffects(pBullet, pOwner, nullptr, false, true);
+					BulletExt::SimulatedFiringEffects(pBullet, pOwner, nullptr, useFiringEffects, true);
 				}
 			}
 		}

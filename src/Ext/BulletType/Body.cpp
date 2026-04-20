@@ -71,6 +71,7 @@ void BulletTypeExt::ExtData::LoadFromINIFile(CCINIClass* const pINI)
 	this->AirburstWeapon_ApplyFirepowerMult.Read(exINI, pSection, "AirburstWeapon.ApplyFirepowerMult");
 	this->AirburstWeapon_SourceScatterMin.Read(exINI, pSection, "AirburstWeapon.SourceScatterMin");
 	this->AirburstWeapon_SourceScatterMax.Read(exINI, pSection, "AirburstWeapon.SourceScatterMax");
+	this->AirburstWeapon_UseFiringEffects.Read(exINI, pSection, "AirburstWeapon.UseFiringEffects");
 	this->Parachuted.Read(exINI, pSection, "Parachuted");
 	this->Parachuted_FallRate.Read(exINI, pSection, "Parachuted.FallRate");
 	this->Parachuted_MaxFallRate.Read(exINI, pSection, "Parachuted.MaxFallRate");
@@ -171,6 +172,7 @@ void BulletTypeExt::ExtData::Serialize(T& Stm)
 		.Process(this->AirburstWeapon_ApplyFirepowerMult)
 		.Process(this->AirburstWeapon_SourceScatterMin)
 		.Process(this->AirburstWeapon_SourceScatterMax)
+		.Process(this->AirburstWeapon_UseFiringEffects)
 		.Process(this->Parachuted)
 		.Process(this->Parachuted_FallRate)
 		.Process(this->Parachuted_MaxFallRate)

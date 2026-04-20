@@ -67,6 +67,7 @@ public:
 		Valueable<bool> AirburstWeapon_ApplyFirepowerMult;
 		Valueable<Leptons> AirburstWeapon_SourceScatterMin;
 		Valueable<Leptons> AirburstWeapon_SourceScatterMax;
+		Valueable<bool> AirburstWeapon_UseFiringEffects;
 
 		Valueable<bool> Parachuted;
 		Valueable<int> Parachuted_FallRate;
@@ -123,6 +124,7 @@ public:
 			, AirburstWeapon_ApplyFirepowerMult { false }
 			, AirburstWeapon_SourceScatterMin { Leptons(0) }
 			, AirburstWeapon_SourceScatterMax { Leptons(0) }
+			, AirburstWeapon_UseFiringEffects { false }
 			, Parachuted { false }
 			, Parachuted_FallRate { 1 }
 			, Parachuted_MaxFallRate {}
