@@ -60,6 +60,8 @@ public:
 		Valueable<bool> Airburst_TargetAsSource;
 		Valueable<bool> Airburst_TargetAsSource_SkipHeight;
 		Valueable<Leptons> Splits_TargetingDistance;
+		Valueable<bool> Splits_TargetingDistance_Cylindrical;
+		Valueable<bool> Splits_AllowRepeatTargets;
 		Valueable<int> Splits_TargetCellRange;
 		Valueable<bool> Splits_UseWeaponTargeting;
 		Valueable<bool> AirburstWeapon_ApplyFirepowerMult;
@@ -114,6 +116,8 @@ public:
 			, Airburst_TargetAsSource { false }
 			, Airburst_TargetAsSource_SkipHeight { false }
 			, Splits_TargetingDistance{ Leptons(1280) }
+			, Splits_TargetingDistance_Cylindrical { false }
+			, Splits_AllowRepeatTargets { false }
 			, Splits_TargetCellRange { 3 }
 			, Splits_UseWeaponTargeting { false }
 			, AirburstWeapon_ApplyFirepowerMult { false }
