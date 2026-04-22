@@ -2174,7 +2174,7 @@ DEFINE_HOOK(0x4D6FE1, FootClass_ElectricAssultFix2, 0x7)		// Mission_AreaGuard
 	const auto pWeapon = ElectricAssultTemp::WeaponType;
 	const bool InGuard = (R->Origin() == 0x4D5184);
 
-	if (pBuilding->Owner == pThis->Owner
+	if (pBuilding->Owner->IsAlliedWith(pThis->Owner)
 		&& GeneralUtils::GetWarheadVersusArmor(pWeapon->Warhead, pBuilding, pBuilding->Type) != 0.0)
 	{
 		return InGuard ? SkipGuard : SkipAreaGuard;
