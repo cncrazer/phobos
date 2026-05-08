@@ -655,6 +655,7 @@ Vanilla fixes:
 - `ElectricAssault` weapons can now auto acquire allies' overpowerable defenses (by Ollerus)
 - Fixed the issue that the time for units in the area guard mission to reacquire targets after eliminating the target is significantly longer than that in other missions (by TaranDahl)
 - Purely visual animations and particles excluded from sync checks (by Starkku)
+- Fixed AI team recruitment inconsistency causing underfilled teams (by handama)
 
 Phobos fixes:
 - Fixed the bug that `AllowAirstrike=no` cannot completely prevent air strikes from being launched against it (by NetsuNegi)
