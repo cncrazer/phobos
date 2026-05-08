@@ -698,6 +698,7 @@ Phobos fixes:
 - Fixed a bug causing transfering AttachEffects (e.g on `DeploysInto`/`UndeploysInto`) not to immediately recalculate stats or tint (by Starkku)
 - Fixed a bug where updating the `OpenTopped` attribute during convert did not update the coordinates of passengers (by NetsuNegi)
 - Fixed `Shrapnel.AffectsBuildings=true` shrapnel weapons being able to hit the building itself, potentially multiple times, if it had foundation larger than 1x1 (by Starkku)
+- Fixed the bug where the `.SubjectToGround` of the Trajectory type did not consider bridges (by Noble_Fish)
 
 Fixes / interactions with other extensions:
 <!--  - Allowed `AuxBuilding` and Ares' `SW.Aux/NegBuildings` to count building upgrades (by Ollerus)  -->
