@@ -713,6 +713,7 @@ Phobos fixes:
 - Fixed the bug where `WeaponRange.AllowWeapons` and `WeaponRange.DisallowWeapons` only support weapons listed in the `[WeaponTypes]` list (by Noble_Fish)
 - Fixed the bug where passengers, when their transport unit is removed, would cause incorrect `LimboTracker` counts due to either having their destructor called directly (bypassing `UnInit`) or nested `UnInit` calls resetting the deletion flag too early, thereby breaking auto-death and superweapon auxiliary techno checks (by NetsuNegi)
 - Fixed a bug where stationary vehicles would also block movement caused by external factors (by Noble_Fish)
+- Fixed AttachEffect with `RecreationDelay` of 0 checking `Delay` as well instead of immediately refreshing duration when possible (by Starkku)
 
 Fixes / interactions with other extensions:
 - Taking over Ares' AlphaImage respawn logic to reduce lags from it (by NetsuNegi)
