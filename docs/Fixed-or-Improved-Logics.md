@@ -326,6 +326,7 @@ This page describes all ingame logics that are fixed or improved in Phobos witho
 - Purely visual animations and particles are no longer included in frame CRC generation and are thus exempt from any sync checks between players in multiplayer games.
 - Fixed the bug that low-air taking off / landing objects will receive twice damage.
 - Allowed `AuxBuilding` to count building upgrades.
+- Fixed voxel projectile and animation lighting issues.
 
 ## Fixes / interactions with other extensions
 
