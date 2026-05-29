@@ -504,7 +504,7 @@ HideShakeEffects=false           ; boolean
 - Fast access structure (by FlyStar)
 - Toggle off laser trail and shake effects (by Ollerus)
 - [Dehardcode the `ZAdjust` of warhead anim](Fixed-or-Improved-Logics.md#dehardcode-the-zadjust-of-warhead-anim) (by TaranDahl)
-- [Interceptor target scan delay customization](New-or-Enhanced-Logics.md#projectile-interception-logic) (by Starkku)
+- [Interceptor target scan delay customization & cylindrical rangefinding](New-or-Enhanced-Logics.md#projectile-interception-logic) (by Starkku)
 - [Allow deploy controlled MCV](Fixed-or-Improved-Logics.md#allow-deploy-controlled-mcv) (by NetsuNegi)
 - [Customize if cloning need power](Fixed-or-Improved-Logics.md#customize-if-cloning-need-power) (by NetsuNegi)
 - [Added Target Filtering Options to AttachEffect System](New-or-Enhanced-Logics.md#attached-effects) (by Flactine)
@@ -711,6 +711,7 @@ HideShakeEffects=false           ; boolean
 - Fixed the bug where passengers, when their transport unit is removed, would cause incorrect `LimboTracker` counts due to either having their destructor called directly (bypassing `UnInit`) or nested `UnInit` calls resetting the deletion flag too early, thereby breaking auto-death and superweapon auxiliary techno checks (by NetsuNegi)
 - Fixed a bug where stationary vehicles would also block movement caused by external factors (by Noble_Fish)
 - Fixed AttachEffect with `RecreationDelay` of 0 checking `Delay` as well instead of immediately refreshing duration when possible (by Starkku)
+- Fixed building interceptors being able to pick targets during construction and selling (by Starkku)
 
 #### Fixes / interactions with other extensions:
 - Taking over Ares' AlphaImage respawn logic to reduce lags from it (by NetsuNegi)
