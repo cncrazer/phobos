@@ -26,18 +26,6 @@ DEFINE_JUMP(VTABLE, 0x7F5CF4, 0x741490) // UnitClass_GetTechnoType -> UnitClass_
 
 #pragma region Update
 
-DEFINE_HOOK(0x7363C9, UnitClass_AI_AnimationPaused, 0x6)
-{
-	enum { SkipGameCode = 0x7363DE };
-
-	GET(UnitClass*, pThis, ESI);
-	
-	if (TechnoExt::ExtMap.Find(pThis)->DelayedFireSequencePaused)
-		return SkipGameCode;
-
-	return 0;
-}
-
 // Early, before ObjectClass_AI
 DEFINE_HOOK(0x6F9E50, TechnoClass_AI, 0x5)
 {
@@ -65,6 +53,9 @@ DEFINE_HOOK(0x4DA54E, FootClass_AI, 0x6)
 	return 0;
 }
 
+// Skip vanilla animation counter code in UnitClass::AI.
+DEFINE_JUMP(LJMP, 0x7363C9, 0x7363DE);
+
 // After FootClass_AI
 DEFINE_HOOK(0x736480, UnitClass_AI, 0x6)
 {
@@ -74,6 +65,17 @@ DEFINE_HOOK(0x736480, UnitClass_AI, 0x6)
 	pExt->UpdateKeepTargetOnMove();
 	pExt->DepletedAmmoActions();
 	pExt->UpdateSubterraneanHarvester();
+
+	// Replace vanilla animation counter code in UnitClass::AI.
+	if (pThis->IsAlive && !pExt->DelayedFireSequencePaused && !((pThis->IsWarpingIn() && pThis->TemporalTargetingMe) || pThis->IsBeingWarpedOut()))
+	{
+		int animCounter = pThis->CurrentFiringFrame - 1;
+
+		if (animCounter < -1)
+			animCounter = -1;
+
+		pThis->CurrentFiringFrame = animCounter;
+	}
 
 	return 0;
 }
