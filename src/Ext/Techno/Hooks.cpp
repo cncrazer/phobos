@@ -2046,7 +2046,7 @@ DEFINE_HOOK(0x70AFEF, TechnoClass_UpdateSight_DynamicSight2, 0x6)
 
 #pragma endregion
 
-namespace WrapPerStep
+namespace WarpPerStep
 {
 	class TemporalClassFake final : public TemporalClass
 	{
@@ -2060,7 +2060,7 @@ namespace WrapPerStep
 	};
 }
 
-int WrapPerStep::TemporalClassFake::_GetWarpPerStep(int helperCount)
+int WarpPerStep::TemporalClassFake::_GetWarpPerStep(int helperCount)
 {
 	const auto pThis = static_cast<TemporalClass*>(this);
 	auto pTemporal = pThis;
@@ -2077,7 +2077,7 @@ int WrapPerStep::TemporalClassFake::_GetWarpPerStep(int helperCount)
 		int weaponIdx = 0;
 
 		if (AresHelper::CanUseAres)
-			weaponIdx = reinterpret_cast<WrapPerStep::DummyExtHere*>(*(uintptr_t*)((char*)pOwner + 0x154))->WeaponIndex_Warp;
+			weaponIdx = reinterpret_cast<WarpPerStep::DummyExtHere*>(*(uintptr_t*)((char*)pOwner + 0x154))->WeaponIndex_Warp;
 		else
 			weaponIdx = pOwner->SelectWeapon(nullptr);
 		
@@ -2127,4 +2127,4 @@ int WrapPerStep::TemporalClassFake::_GetWarpPerStep(int helperCount)
 
 	return sum;
 }
-DEFINE_FUNCTION_JUMP(LJMP, 0x71AB10, WrapPerStep::TemporalClassFake::_GetWarpPerStep)
+DEFINE_FUNCTION_JUMP(LJMP, 0x71AB10, WarpPerStep::TemporalClassFake::_GetWarpPerStep)
