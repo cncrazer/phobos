@@ -581,6 +581,7 @@ HideShakeEffects=false           ; boolean
 - Allow enabling a looser movement state check for the `DiscardOn=move` condition of AE to support more usage scenarios (by Noble_Fish)
 - Restored the original Tiberian Sun behavior of playing the `[AudioVisual] -> DeploySound=` sound effect when clicking the sidebar to execute `Deploy` (by Noble_Fish)
 - Allow `RemoveMindControl` warhead to mute `MindClearedSound` (by Noble_Fish)
+- Introduce weight selection rules for ExtraWarheads (by Noble_Fish)
 
 #### Vanilla fixes:
 - Fixed sidebar not updating queued unit numbers when adding or removing units when the production is on hold (by CrimRecya)
