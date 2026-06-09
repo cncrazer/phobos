@@ -361,6 +361,9 @@ public:
 		Valueable<bool> RemoveMindControl_Silent;
 		Valueable<bool> MindControl_Permanent_ReplaceSilent;
 
+		Valueable<DynamicTeamDelayType> TeamDelays_DynamicType;
+		Valueable<Vector3D<int>> TeamDelays_Count[8];
+
 		ExtData(RulesClass* OwnerObject) : Extension<RulesClass>(OwnerObject)
 			, Storage_TiberiumIndex { -1 }
 			, HarvesterDumpAmount { 0.0f }
@@ -659,6 +662,9 @@ public:
 			, DiscardOn_MoveBasedOnDestination { false }
 			, RemoveMindControl_Silent { false }
 			, MindControl_Permanent_ReplaceSilent { false }
+
+			, TeamDelays_DynamicType { DynamicTeamDelayType::StartingPoint }
+			, TeamDelays_Count {}
 		{ }
 
 		virtual ~ExtData() = default;
