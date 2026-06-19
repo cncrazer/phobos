@@ -132,6 +132,13 @@ void TechnoExt::DrawInsignia(TechnoClass* pThis, Point2D* pLocation, RectangleSt
 	auto pOwner = pThis->Owner;
 	const bool isObserver = HouseClass::IsCurrentPlayerObserver();
 
+	if (pThis->IsDisguised() && !pThis->IsClearlyVisibleTo(HouseClass::CurrentPlayer)
+		&& !isObserver && !pOwner->IsAlliedWith(HouseClass::CurrentPlayer)
+		&& pThis->Disguise->WhatAmI() == AbstractType::TerrainType)
+	{
+		return;
+	}
+
 	if (pThis->IsDisguised() && !pThis->IsClearlyVisibleTo(HouseClass::CurrentPlayer) && !(isObserver
 		|| EnumFunctions::CanTargetHouse(RulesExt::Global()->DisguiseBlinkingVisibility, HouseClass::CurrentPlayer, pOwner)))
 	{
@@ -140,10 +147,6 @@ void TechnoExt::DrawInsignia(TechnoClass* pThis, Point2D* pLocation, RectangleSt
 			pTechnoType = pType;
 			pTechnoTypeExt = TechnoTypeExt::ExtMap.Find(pType);
 			pOwner = pThis->DisguisedAsHouse;
-		}
-		else if (pThis->Disguise->WhatAmI() == AbstractType::TerrainType && (!isObserver && !pOwner->IsAlliedWith(HouseClass::CurrentPlayer)))
-		{
-			return;
 		}
 	}
 
@@ -873,3 +876,4 @@ void TechnoExt::ShowPromoteAnim(TechnoClass* pThis)
 	else if (!eliteAnims.empty())
 		AnimExt::CreateRandomAnim(eliteAnims, pThis->GetCenterCoords(), pThis, pThis->Owner, true, true);
 }
+
